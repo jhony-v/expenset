@@ -17,11 +17,13 @@ import {
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function BoardExpenseTracker({ session }: { session: Session }) {
   const supabase = createClientComponentClient();
   const userId = session.user.id;
+  const navigation = useRouter();
 
   const { data: budget, refetch: refetchBudget } = useQuery({
     queryKey: ["budget"],
@@ -93,13 +95,23 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     refetchMovement();
   };
 
+  const handleLogOut = async () => {
+    await supabase.auth.signOut();
+    navigation.push("/login");
+  };
+
   return (
     <div className="p-3 container mx-auto">
-      <h1 className="text-xl mb-5">Board expense tracker</h1>
+      <div className="flex justify-between mb-10 mt-5">
+        <h1 className="text-xl ">Board expense tracker</h1>
+        <Button size="sm" color="primary" variant="flat" onClick={handleLogOut}>
+          Log out
+        </Button>
+      </div>
       <div className="space-y-6">
         <Card>
           <CardBody className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <Input
                 label="Amount"
                 placeholder="S/"
@@ -114,7 +126,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
                 onValueChange={(e) => setDescription(e)}
               />
             </div>
-            <div className="flex gap-6 ">
+            <div className="grid grid-cols-2 md:flex gap-6">
               <Button color="danger" onClick={handleSpend}>
                 Spend
               </Button>
@@ -124,15 +136,24 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             </div>
           </CardBody>
         </Card>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-2 md:gap-6 font-medium">
           <Card>
-            <CardBody>Budget: {budget.amount}</CardBody>
+            <CardBody>
+              Budget:
+              <span className="text-green-400">{budget.amount}</span>
+            </CardBody>
           </Card>
           <Card>
-            <CardBody>Expense: {budget.expense}</CardBody>
+            <CardBody>
+              Expense:
+              <span className="text-red-400">{budget.expense}</span>
+            </CardBody>
           </Card>
           <Card>
-            <CardBody>Income: {budget.income}</CardBody>
+            <CardBody>
+              Income:
+              <span className="text-blue-400">{budget.income}</span>
+            </CardBody>
           </Card>
         </div>
         <Card>
