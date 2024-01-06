@@ -2,6 +2,7 @@
 
 import { NextUIProvider } from "@nextui-org/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NextIntlClientProvider, useMessages } from "next-intl";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -13,10 +14,20 @@ const client = new QueryClient({
   },
 });
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  locale,
+  messages,
+}: {
+  children: React.ReactNode;
+  locale?: string;
+  messages?: any;
+}) {
   return (
     <QueryClientProvider client={client}>
-      <NextUIProvider>{children}</NextUIProvider>
+      <NextIntlClientProvider messages={messages} locale={locale}>
+        <NextUIProvider>{children}</NextUIProvider>
+      </NextIntlClientProvider>
     </QueryClientProvider>
   );
 }

@@ -18,4 +18,5 @@ export interface Movement {
   id: number;
   description: string;
   type: MovementType;
+  created_at?: string;
 }
