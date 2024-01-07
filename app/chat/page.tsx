@@ -11,7 +11,6 @@ import ArrowLeft from "../shared/icons/ArrowLeft";
 
 export default function MyComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "chat/callback",
     onError() {
       console.log("error");
     },

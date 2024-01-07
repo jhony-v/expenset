@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Budget, Movement } from "@/app/shared/types";
 
 export const runtime = "edge";
 
