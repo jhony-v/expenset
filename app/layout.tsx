@@ -1,4 +1,5 @@
 import "./shared/styles/globals.css";
+import "react-day-picker/dist/style.css";
 import type { Metadata } from "next";
 import { Providers } from "./providers";
 import { getMessages } from "next-intl/server";

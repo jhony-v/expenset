@@ -45,7 +45,7 @@ export default function EditMovement({
           />
           <h2 className="text-2xl text-center">{currency(movement.amount)}</h2>
           <form
-            className="w-full"
+            className="w-full space-y-2"
             onSubmit={async (e) => {
               e.preventDefault();
               const form = new FormData(e.currentTarget);
