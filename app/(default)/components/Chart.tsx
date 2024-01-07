@@ -1,13 +1,13 @@
 "use client";
 
 import dayjs from "dayjs";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { MovementType } from "../constants";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { ColorType, LineType, Time, createChart } from "lightweight-charts";
-import { Switch, colors } from "@nextui-org/react";
-import { Movement } from "@/app/types";
+import { Checkbox, colors } from "@nextui-org/react";
+import { Movement } from "@/app/shared/types";
+import { MovementType } from "@/app/constants";
 
-export default function Chart({
+export default memo(function Chart({
   movements,
   locked,
 }: {
@@ -90,22 +90,22 @@ export default function Chart({
   return (
     <div className={`m-0 relative ${locked ? "blur-sm" : ""}`}>
       <div className="flex gap-6 mb-2">
-        <Switch
+        <Checkbox
           color="danger"
           size="sm"
           isSelected={visibleExpense}
           onValueChange={setVisibleExpense}
         >
           Show expense
-        </Switch>
-        <Switch
+        </Checkbox>
+        <Checkbox
           color="primary"
           size="sm"
           isSelected={visibleIncomes}
           onValueChange={setVisibleIncomes}
         >
           Show income
-        </Switch>
+        </Checkbox>
       </div>
       <div ref={chartContainerRef} data-area="graphic" />
       {locked && (
@@ -113,4 +113,4 @@ export default function Chart({
       )}
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 
-export default function LockContent({
+export default memo(function LockContent({
   locked,
   children,
   lockedContent = "****",
@@ -10,4 +10,4 @@ export default function LockContent({
   children: ReactNode;
 }) {
   return locked ? lockedContent : children;
-}
+});

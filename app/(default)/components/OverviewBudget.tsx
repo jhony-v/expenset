@@ -1,8 +1,8 @@
-import { Budget } from "@/app/types";
+import { Budget } from "@/app/shared/types";
 import { Card, CardBody } from "@nextui-org/react";
 import LockContent from "./LockContent";
 import { useFormatter } from "next-intl";
-import useCurrency from "@/app/hooks/useCurrency";
+import useCurrency from "@/app/shared/hooks/useCurrency";
 
 export default function OverviewBudget({
   budget,

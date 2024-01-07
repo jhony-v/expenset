@@ -7,9 +7,7 @@ export default async function Page() {
   const supabase = createServerComponentClient({ cookies: cookies });
   const { data } = await supabase.auth.getSession();
 
-  if (data.session) {
-    return <BoardExpenseTracker session={data.session} />;
-  }
+  if (data.session) return <BoardExpenseTracker session={data.session} />;
 
   return redirect("/login");
 }

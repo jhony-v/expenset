@@ -1,19 +1,21 @@
-import { Movement } from "@/app/types";
+import { Movement } from "@/app/shared/types";
 import { Avatar, Card, CardBody, Progress } from "@nextui-org/react";
-import { MovementType } from "../constants";
-import TrendingDown from "@/app/icons/TrendingDown";
-import TrendingUp from "@/app/icons/TrendingUp";
+import { MovementType } from "../../constants";
+import TrendingDown from "@/app/shared/icons/TrendingDown";
+import TrendingUp from "@/app/shared/icons/TrendingUp";
 import LockContent from "./LockContent";
 import dayjs from "dayjs";
-import useCurrency from "@/app/hooks/useCurrency";
+import useCurrency from "@/app/shared/hooks/useCurrency";
 
 export default function History({
   locked,
   movements,
   loading,
+  onPressItem,
 }: {
   loading: boolean;
   locked: boolean;
+  onPressItem(movement: Movement): void;
   movements: Array<Movement>;
 }) {
   const currency = useCurrency();
@@ -36,7 +38,12 @@ export default function History({
         return (
           <Card key={movement.id}>
             <CardBody>
-              <div className="flex gap-4">
+              <div
+                onClick={() => {
+                  onPressItem(movement);
+                }}
+                className="flex gap-4"
+              >
                 <div className="flex items-center">
                   <Avatar
                     icon={

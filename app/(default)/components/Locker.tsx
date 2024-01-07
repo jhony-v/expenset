@@ -1,6 +1,6 @@
-import { Switch } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import UnlockModal from "./UnlockModal";
-import { Budget } from "@/app/types";
+import { Budget } from "@/app/shared/types";
 import { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
@@ -39,25 +39,22 @@ export default function Locker({
   return (
     <div>
       {locked ? (
-        <Switch
-          isSelected={isLockModalOpen}
-          onValueChange={(lockedValue) => {
-            setLockModalOpen(lockedValue);
+        <Button
+          size="sm"
+          variant="faded"
+          onClick={() => {
+            setLockModalOpen(true);
           }}
           aria-label="show money"
-          name="show-money"
-          size="sm"
         >
-          <span className="text-gray-400">Show money</span>
-        </Switch>
+          Show money
+        </Button>
       ) : (
         <div>
-          <Switch
+          <Button
             size="sm"
-            color="primary"
+            variant="flat"
             aria-label="hide money"
-            isSelected
-            name="hide-money"
             onClick={async () => {
               onLocked(true);
               await supabase
@@ -74,8 +71,8 @@ export default function Locker({
                 .eq("id", budget.id);
             }}
           >
-            <span className="text-gray-400">Hide money</span>
-          </Switch>
+            Hide money
+          </Button>
         </div>
       )}
       <UnlockModal

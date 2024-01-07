@@ -1,4 +1,4 @@
-import { MovementType } from "../(default)/constants";
+import { MovementType } from "../../constants";
 
 export interface Budget {
   id?: string;
