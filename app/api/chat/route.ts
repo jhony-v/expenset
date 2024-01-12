@@ -12,49 +12,52 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
+  let initialContentSystem = `
+  You are a financial bot assistant. You must analyze the json information, and answer what the user ask you.
+  Information: 
+`;
+  try {
+    const supabase = createServerComponentClient({ cookies });
 
-  const supabase = createServerComponentClient({ cookies });
+    let temporalUserBudget: string | null = "";
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-  let temporalUserBudget: string | null = "";
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    const userId = session?.user.id;
+    temporalUserBudget = await kv.get(`expenset:user:${userId}:budget`);
 
-  const userId = session?.user.id;
-  temporalUserBudget = await kv.get(`expenset:user:${userId}:budget`);
+    if (temporalUserBudget === null) {
+      const budget = await supabase
+        .from("budget")
+        .select()
+        .eq("user_id", session?.user.id);
 
-  if (temporalUserBudget === null) {
-    const budget = await supabase
-      .from("budget")
-      .select()
-      .eq("user_id", session?.user.id);
+      const budgetId = budget.data?.[0].id;
+      const movements = await supabase
+        .from("movement")
+        .select()
+        .eq("budget_id", budgetId);
 
-    const budgetId = budget.data?.[0].id;
-    const movements = await supabase
-      .from("movement")
-      .select()
-      .eq("budget_id", budgetId);
+      const payload = JSON.stringify({
+        budget: budget.data?.[0],
+        movements: movements.data,
+      });
+      await kv.set(`expenset:user:${userId}:budget`, payload, {
+        ex: 60 * 5,
+        nx: true,
+      });
+      temporalUserBudget = payload;
+    } else {
+      temporalUserBudget = JSON.stringify(temporalUserBudget);
+    }
 
-    const payload = JSON.stringify({
-      budget: budget.data?.[0],
-      movements: movements.data,
-    });
-    await kv.set(`expenset:user:${userId}:budget`, payload, {
-      ex: 60 * 5,
-      nx: true,
-    });
-    temporalUserBudget = payload;
-  } else {
-    temporalUserBudget = JSON.stringify(temporalUserBudget);
+    initialContentSystem += temporalUserBudget;
+
+    console.log(initialContentSystem);
+  } catch (error) {
+    console.log(error);
   }
-
-  const initialContentSystem = `
-    You are a financial bot assistant. You must analyze the json information, and answer what the user ask you.
-    Information: 
-    ${temporalUserBudget}
-  `;
-
-  console.log(initialContentSystem);
 
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
