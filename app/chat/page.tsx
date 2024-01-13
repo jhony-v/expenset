@@ -19,7 +19,7 @@ export default function MyComponent() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="mx-auto md:w-unit-8xl min-h-screen flex flex-col overflow-hidden ">
+    <div className="mx-auto md:w-unit-8xl h-dvh flex flex-col overflow-hidden">
       <header className="p-2 flex-none flex items-center gap-6">
         <Link href="/">
           <ArrowLeft />

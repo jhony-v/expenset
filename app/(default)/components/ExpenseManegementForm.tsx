@@ -92,7 +92,9 @@ export default function ExpenseManegementForm({
               reset();
               onSpend(payload);
             }}
-            isDisabled={amount >= Math.floor(budget.amount) || locked}
+            isDisabled={
+              amount >= Math.floor(budget.amount) || locked || amount <= 0
+            }
           >
             Spend
           </Button>
@@ -103,7 +105,7 @@ export default function ExpenseManegementForm({
               reset();
               onDeposit(payload);
             }}
-            isDisabled={locked}
+            isDisabled={locked || amount <= 0}
           >
             Income
           </Button>

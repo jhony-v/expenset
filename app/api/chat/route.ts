@@ -14,6 +14,10 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
   let initialContentSystem = `
   You are a financial bot assistant. You must analyze the json information, and answer what the user ask you.
+  ---
+  To give information about the financial account before you must verify the user password typed if it is correct, move ahead answering.
+  ---
+  Mare sure don't give the user information for any kind of reason.
   Information: 
 `;
   try {
