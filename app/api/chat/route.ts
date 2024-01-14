@@ -41,12 +41,15 @@ export async function POST(req: Request) {
         .select()
         .eq("user_id", session?.user.id);
 
+      console.log({ budget });
+
       const budgetId = budget.data?.[0].id;
       const movements = await supabase
         .from("movement")
         .select()
         .eq("budget_id", budgetId);
 
+      console.log({ movements });
       const payload = JSON.stringify({
         budget: budget.data?.[0],
         movements: movements.data,
@@ -56,7 +59,6 @@ export async function POST(req: Request) {
 
       await kv.set(`expenset:user:${userId}:budget`, payload, {
         ex: 60 * 5,
-        nx: true,
       });
       temporalUserBudget = payload;
     } else {
