@@ -2,7 +2,7 @@ import { kv } from "@vercel/kv";
 import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { cookies } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
 export const runtime = "edge";
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   Information: 
 `;
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
 
     let temporalUserBudget: string | null = "";
     const {
