@@ -8,7 +8,7 @@ import {
   Spinner,
   Switch,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { memo, useState } from "react";
 
 export type Payload = {
   alterBudget: boolean;
@@ -16,7 +16,7 @@ export type Payload = {
   description: string;
 };
 
-export default function ExpenseManegementForm({
+export default memo(function ExpenseManegementForm({
   locked,
   loading,
   budget,
@@ -113,7 +113,7 @@ export default function ExpenseManegementForm({
       </CardBody>
     </Card>
   );
-}
+});
 
 function changeLimitColor(amount: number, maxAmount: number) {
   const percentage = (amount / maxAmount) * 100;

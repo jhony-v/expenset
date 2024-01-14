@@ -67,6 +67,10 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
 
   const [locked, setLocked] = useState(true);
   const [currentMovement, setCurrentMovement] = useState<Movement | null>(null);
+  const [crosshairMovements, setCrosshairMovements] = useState<{
+    expense: Set<number>;
+    income: Set<number>;
+  } | null>(null);
 
   const handleSpend = useCallback(
     async ({ alterBudget, amount, description }: Payload) => {
@@ -152,7 +156,11 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
               onDeposit={handleIncome}
               onSpend={handleSpend}
             />
-            <Chart movements={movements} locked={locked} />
+            <Chart
+              movements={movements}
+              locked={locked}
+              onCrosshairMoveData={setCrosshairMovements}
+            />
           </div>
         </div>
         <div className=" md:w-unit-8xl space-y-6">
@@ -162,6 +170,13 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             locked={locked}
             movements={movements}
             onPressItem={setCurrentMovement}
+            renderIsChecked={(movement) => {
+              if (crosshairMovements === null) return false;
+              return new Set([
+                ...crosshairMovements.expense,
+                ...crosshairMovements.income,
+              ]).has(movement.id);
+            }}
           />
         </div>
       </section>

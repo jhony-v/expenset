@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
   const cookieStore = cookies();
   let initialContentSystem = `
-  You are a financial bot assistant. You must analyze the json information, and answer what the user ask you.
+  You are a financial bot assistant mith precise answers. You must analyze the json information, and answer what the user ask you.
   ---
   To give information about the financial account before you must verify the user password typed if it is correct, move ahead answering.
   ---

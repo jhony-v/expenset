@@ -61,7 +61,7 @@ export default function MyComponent() {
                     </div>
                     <div
                       className={`max-w-[60%] md:max-w-80 ${
-                        !isUser ? "bg-zinc-700 rounded-xl p-3" : ""
+                        !isUser ? "bg-zinc-800 rounded-xl p-3" : ""
                       }`}
                     >
                       {m.content}
@@ -75,7 +75,7 @@ export default function MyComponent() {
         <footer className="flex-none">
           <form
             onSubmit={handleSubmit}
-            className="m-2 flex rounded-3xl bg-zinc-700 p-2"
+            className="m-4 flex rounded-3xl bg-zinc-800 p-2"
           >
             <input
               name="ask"

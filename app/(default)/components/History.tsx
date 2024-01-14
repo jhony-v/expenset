@@ -1,7 +1,5 @@
 import { Movement } from "@/app/shared/types";
 import {
-  Avatar,
-  Button,
   Card,
   CardBody,
   Checkbox,
@@ -10,8 +8,6 @@ import {
   cn,
 } from "@nextui-org/react";
 import { MovementType } from "../../constants";
-import TrendingDown from "@/app/shared/icons/TrendingDown";
-import TrendingUp from "@/app/shared/icons/TrendingUp";
 import LockContent from "./LockContent";
 import dayjs from "dayjs";
 import useCurrency from "@/app/shared/hooks/useCurrency";
@@ -22,11 +18,13 @@ export default function History({
   movements,
   loading,
   onPressItem,
+  renderIsChecked,
 }: {
   loading: boolean;
   locked: boolean;
   onPressItem(movement: Movement): void;
   movements: Array<Movement>;
+  renderIsChecked(movement: Movement): boolean;
 }) {
   const currency = useCurrency();
   const [selectedMovements, setSelectedMovements] = useState<Array<string>>([]);
@@ -51,30 +49,35 @@ export default function History({
         value={selectedMovements}
         onValueChange={setSelectedMovements}
       >
-        <div className="space-y-3" aria-label="movements">
+        <div className="grid xl:grid-cols-2 gap-3" aria-label="movements">
           {movements.map((movement) => {
+            const isExpense = checkIsExpense(movement.type);
+
             return (
-              <Card key={movement.id}>
-                <CardBody className="pl-0">
+              <Card
+                key={movement.id}
+                className={cn(
+                  renderIsChecked?.(movement) && "border-2",
+                  renderIsChecked?.(movement) &&
+                    (isExpense ? "border-danger" : "border-primary")
+                )}
+              >
+                <CardBody
+                  className={cn(
+                    renderIsChecked?.(movement) &&
+                      (isExpense ? "bg-danger-50" : "bg-primary-50")
+                  )}
+                >
                   <div
                     onClick={() => {
                       onPressItem(movement);
                     }}
                     className="flex gap-4"
                   >
-                    <div className="flex md:gap-unit-sm items-center">
+                    <div className="flex items-center">
                       <Checkbox value={String(movement.id)} />
-                      <Avatar
-                        icon={
-                          movement.type === MovementType.EXPENSE ? (
-                            <TrendingDown />
-                          ) : (
-                            <TrendingUp />
-                          )
-                        }
-                      />
                     </div>
-                    <div>
+                    <div className="whitespace-normal">
                       <p className="mb-unit-xs">
                         <LockContent
                           locked={locked}
@@ -89,9 +92,14 @@ export default function History({
                         )}
                       </p>
                     </div>
-                    <div className="ml-auto flex items-center">
+                    <div
+                      className={cn(
+                        "ml-auto flex items-center",
+                        isExpense ? "text-red-400" : "text-blue-400"
+                      )}
+                    >
                       <LockContent locked={locked}>
-                        {currency(movement.amount)}
+                        {`${isExpense ? "-" : "+"}${currency(movement.amount)}`}
                       </LockContent>
                     </div>
                   </div>
@@ -104,3 +112,6 @@ export default function History({
     </div>
   );
 }
+
+const checkIsExpense = (type: string | MovementType) =>
+  type === MovementType.EXPENSE;
