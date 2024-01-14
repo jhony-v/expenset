@@ -12,6 +12,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
+  const cookieStore = cookies();
   let initialContentSystem = `
   You are a financial bot assistant. You must analyze the json information, and answer what the user ask you.
   ---
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
   Information: 
 `;
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     let temporalUserBudget: string | null = "";
     const {
