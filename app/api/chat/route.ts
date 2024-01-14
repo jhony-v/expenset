@@ -28,8 +28,12 @@ export async function POST(req: Request) {
       data: { session },
     } = await supabase.auth.getSession();
 
+    console.log({ session });
+
     const userId = session?.user.id;
     temporalUserBudget = await kv.get(`expenset:user:${userId}:budget`);
+
+    console.log({ temporalUserBudget });
 
     if (temporalUserBudget === null) {
       const budget = await supabase
@@ -47,6 +51,9 @@ export async function POST(req: Request) {
         budget: budget.data?.[0],
         movements: movements.data,
       });
+      console.log("supabase");
+      console.log({ payload });
+
       await kv.set(`expenset:user:${userId}:budget`, payload, {
         ex: 60 * 5,
         nx: true,
@@ -54,12 +61,15 @@ export async function POST(req: Request) {
       temporalUserBudget = payload;
     } else {
       temporalUserBudget = JSON.stringify(temporalUserBudget);
+      console.log("cache");
+      console.log({ temporalUserBudget });
     }
 
     initialContentSystem += temporalUserBudget;
 
     console.log(initialContentSystem);
   } catch (error) {
+    console.log("error");
     console.log(error);
   }
 
