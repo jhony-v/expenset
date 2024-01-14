@@ -29,20 +29,21 @@ export async function POST(req: Request) {
       data: { session },
     } = await supabase.auth.getSession();
 
-    console.log({ session });
-
     const userId = session?.user.id;
     temporalUserBudget = await kv.get(`expenset:user:${userId}:budget`);
 
     console.log({ temporalUserBudget });
 
-    if (temporalUserBudget === null) {
+    const canGetFromServer =
+      temporalUserBudget === null ||
+      !JSON.parse(temporalUserBudget || "{}")?.budget;
+    console.log({ canGetFromServer });
+
+    if (canGetFromServer) {
       const budget = await supabase
         .from("budget")
         .select()
         .eq("user_id", session?.user.id);
-
-      console.log({ budget });
 
       const budgetId = budget.data?.[0].id;
       const movements = await supabase
@@ -50,13 +51,10 @@ export async function POST(req: Request) {
         .select()
         .eq("budget_id", budgetId);
 
-      console.log({ movements });
       const payload = JSON.stringify({
         budget: budget.data?.[0],
         movements: movements.data,
       });
-      console.log("supabase");
-      console.log({ payload });
 
       await kv.set(`expenset:user:${userId}:budget`, payload, {
         ex: 60 * 5,
@@ -64,15 +62,12 @@ export async function POST(req: Request) {
       temporalUserBudget = payload;
     } else {
       temporalUserBudget = JSON.stringify(temporalUserBudget);
-      console.log("cache");
-      console.log({ temporalUserBudget });
     }
 
     initialContentSystem += temporalUserBudget;
 
     console.log(initialContentSystem);
   } catch (error) {
-    console.log("error");
     console.log(error);
   }
 
