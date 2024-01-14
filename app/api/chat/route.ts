@@ -34,9 +34,7 @@ export async function POST(req: Request) {
 
     console.log({ temporalUserBudget });
 
-    const canGetFromServer =
-      temporalUserBudget === null ||
-      !JSON.parse(temporalUserBudget || "{}")?.budget;
+    const canGetFromServer = temporalUserBudget === null;
     console.log({ canGetFromServer });
 
     if (canGetFromServer) {
