@@ -15,8 +15,7 @@ import OverviewBudget from "./OverviewBudget";
 import Locker from "./Locker";
 import ExpenseManegementForm, { Payload } from "./ExpenseManegementForm";
 import EditMovement from "./EditMovement";
-import Link from "next/link";
-import Logo from "@/app/shared/components/Logo";
+import Navigation from "@/app/shared/components/Navigation";
 
 export default function BoardExpenseTracker({ session }: { session: Session }) {
   const supabase = createClientComponentClient();
@@ -58,7 +57,19 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     queryFn: () =>
       supabase
         .from("movement")
-        .select()
+        .select(
+          `
+          id,
+          amount,
+          created_at,
+          description,
+          type,
+          category (
+            id,
+            name
+          )
+        `
+        )
         .eq("budget_id", budget.id)
         .order("created_at", { ascending: false })
         .then((e) => e.data) as Promise<Array<Movement>>,
@@ -73,15 +84,13 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   } | null>(null);
 
   const handleSpend = useCallback(
-    async ({ alterBudget, amount, description }: Payload) => {
+    async ({ amount, description }: Payload) => {
       const body = {
         amount: budget.amount - amount,
         expense: budget.expense + amount,
       };
-      if (alterBudget) {
-        await supabase.from("budget").update(body).eq("id", budget.id);
-        refetchBudget();
-      }
+      await supabase.from("budget").update(body).eq("id", budget.id);
+      refetchBudget();
       await supabase.from("movement").insert({
         amount,
         description,
@@ -94,15 +103,13 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   );
 
   const handleIncome = useCallback(
-    async ({ alterBudget, amount, description }: Payload) => {
+    async ({ amount, description }: Payload) => {
       const body = {
         amount: budget.amount + amount,
         income: budget.income + amount,
       };
-      if (alterBudget) {
-        await supabase.from("budget").update(body).eq("id", budget.id);
-        refetchBudget();
-      }
+      await supabase.from("budget").update(body).eq("id", budget.id);
+      refetchBudget();
       await supabase.from("movement").insert({
         amount,
         description,
@@ -127,25 +134,12 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
 
   return (
     <div className="p-3 container mx-auto">
-      <header className="flex justify-between mb-5 md:mb-10 mt-2 md:mt-5 items-center">
-        <Logo />
-        <div className="flex gap-2 ml-auto items-center">
-          <Link href="/chat">
-            <Button size="sm" variant="flat">
-              Go AI
-            </Button>
-          </Link>
-          <Locker locked={locked} onLocked={setLocked} budget={budget} />
-          <Button
-            size="sm"
-            color="primary"
-            variant="flat"
-            onClick={handleLogOut}
-          >
-            Log out
-          </Button>
-        </div>
-      </header>
+      <Navigation>
+        <Locker locked={locked} onLocked={setLocked} budget={budget} />
+        <Button size="sm" color="primary" variant="flat" onClick={handleLogOut}>
+          Log out
+        </Button>
+      </Navigation>
       <section className="flex flex-col md:flex-row gap-6">
         <div className="flex-grow">
           <div className="flex flex-col-reverse gap-6">
@@ -163,7 +157,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             />
           </div>
         </div>
-        <div className=" md:w-unit-8xl space-y-6">
+        <div className=" md:w-unit-9xl space-y-6">
           <OverviewBudget budget={budget} locked={locked} />
           <History
             loading={loadingMovements}

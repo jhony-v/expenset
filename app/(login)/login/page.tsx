@@ -27,7 +27,12 @@ export default function Login() {
           Log in to <span className="text-green-400">Expenset</span>
         </h1>
         <Input placeholder="email" name="email" label="Email" />
-        <Input placeholder="password" name="password" label="Password" />
+        <Input
+          placeholder="password"
+          name="password"
+          label="Password"
+          type="password"
+        />
         <Button type="submit" color="primary">
           Sign in
         </Button>

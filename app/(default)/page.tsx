@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import BoardExpenseTracker from "./components/BoardExpenseTracker";
 
 export default async function Page() {
-  const supabase = createServerComponentClient({ cookies: cookies });
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
   const { data } = await supabase.auth.getSession();
 
   if (data.session) return <BoardExpenseTracker session={data.session} />;

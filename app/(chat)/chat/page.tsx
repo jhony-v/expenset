@@ -2,12 +2,11 @@
 
 import { useChat } from "ai/react";
 import { Avatar, Button, Progress, ScrollShadow } from "@nextui-org/react";
-import Link from "next/link";
-import Send from "../shared/icons/Send";
-import Logo from "../shared/components/Logo";
-import Bot from "../shared/icons/Bot";
-import Activity from "../shared/icons/Activity";
-import ArrowLeft from "../shared/icons/ArrowLeft";
+import Send from "@/app/shared/icons/Send";
+import Logo from "@/app/shared/components/Logo";
+import Bot from "@/app/shared/icons/Bot";
+import Activity from "@/app/shared/icons/Activity";
+import Back from "@/app/shared/components/Back";
 
 export default function MyComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -21,9 +20,7 @@ export default function MyComponent() {
   return (
     <div className="mx-auto md:w-unit-8xl h-dvh flex flex-col overflow-hidden">
       <header className="p-2 flex-none flex items-center gap-6">
-        <Link href="/">
-          <ArrowLeft />
-        </Link>
+        <Back />
         <Logo />
       </header>
       <main className="flex-1 flex flex-col w-full gap-3 overflow-hidden">

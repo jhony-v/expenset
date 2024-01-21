@@ -19,4 +19,10 @@ export interface Movement {
   description: string;
   type: MovementType;
   created_at?: string;
+  category: Category;
+}
+
+export interface Category {
+  id: number;
+  name: string;
 }

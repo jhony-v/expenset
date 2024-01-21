@@ -15,7 +15,14 @@ export default function UnlockModal({
   return (
     <Modal isOpen={open} size="sm" onOpenChange={onOpenChange}>
       <ModalContent>
-        <div className="space-y-6 p-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onUnlock(lockPassword);
+            setLockPassword("");
+          }}
+          className="space-y-6 p-2"
+        >
           <Input
             label="Password to view money"
             placeholder="type your own password"
@@ -23,17 +30,10 @@ export default function UnlockModal({
             value={lockPassword}
             onValueChange={setLockPassword}
           />
-          <Button
-            fullWidth
-            color="success"
-            onClick={() => {
-              onUnlock(lockPassword);
-              setLockPassword("");
-            }}
-          >
+          <Button fullWidth color="success" type="submit">
             Unlock
           </Button>
-        </div>
+        </form>
       </ModalContent>
     </Modal>
   );

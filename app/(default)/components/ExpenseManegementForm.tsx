@@ -6,12 +6,10 @@ import {
   CircularProgress,
   Input,
   Spinner,
-  Switch,
 } from "@nextui-org/react";
 import { memo, useState } from "react";
 
 export type Payload = {
-  alterBudget: boolean;
   amount: number;
   description: string;
 };
@@ -31,9 +29,8 @@ export default memo(function ExpenseManegementForm({
 }) {
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
-  const [alterBudget, setAlterBudget] = useState(true);
 
-  const payload = { alterBudget, amount, description };
+  const payload = { amount, description };
 
   const reset = () => {
     setAmount(0);
@@ -74,19 +71,10 @@ export default memo(function ExpenseManegementForm({
             onValueChange={setDescription}
           />
         </div>
-        <div className="flex gap-6">
-          <Switch
-            size="sm"
-            isDisabled={locked}
-            isSelected={alterBudget}
-            onValueChange={setAlterBudget}
-          >
-            <span className="text-gray-400">Alter own budget</span>
-          </Switch>
-        </div>
         <div className="grid grid-cols-2 gap-6">
           <Button
-            color="danger"
+            color="primary"
+            className="bg-purple-600"
             variant="shadow"
             onClick={() => {
               reset();

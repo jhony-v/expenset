@@ -94,6 +94,14 @@ export default memo(function Chart({
         },
         textColor: colors.white,
       },
+      grid: {
+        vertLines: {
+          color: colors.zinc[700],
+        },
+        horzLines: {
+          color: colors.zinc[700],
+        },
+      },
       width: chartContainerRef.current.clientWidth,
       height: window.matchMedia("(min-width: 700px)").matches ? 450 : 300,
     });
@@ -104,9 +112,9 @@ export default memo(function Chart({
 
     if (visibleExpense) {
       expenseSeries = chart.addAreaSeries({
-        lineColor: colors.red[400],
-        topColor: colors.red[400],
-        bottomColor: "rgba(242, 176, 95, 0.1)",
+        lineColor: colors.purple[400],
+        topColor: colors.purple[400],
+        bottomColor: "rgba(128, 0, 128, 0.1)",
         lineType: LineType.Curved,
         title: "expense",
       });
@@ -188,7 +196,7 @@ export default memo(function Chart({
     <div className={`m-0 relative ${locked ? "blur-sm" : ""}`}>
       <div className="flex gap-6 mb-2">
         <Checkbox
-          color="danger"
+          color="secondary"
           size="sm"
           isSelected={visibleExpense}
           onValueChange={setVisibleExpense}

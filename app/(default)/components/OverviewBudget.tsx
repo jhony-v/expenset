@@ -17,28 +17,38 @@ export default memo(function OverviewBudget({
     <div className="grid grid-cols-3 gap-2 md:gap-6 font-medium">
       <Card>
         <CardBody>
-          Budget:
-          <span className="text-green-400">
-            <LockContent locked={locked}>{currency(budget.amount)}</LockContent>
-          </span>
+          <div className="flex flex-col sm:flex-row gap-2 justify-between">
+            <span>Budget:</span>
+            <span className="text-green-400">
+              <LockContent locked={locked}>
+                {currency(budget.amount)}
+              </LockContent>
+            </span>
+          </div>
         </CardBody>
       </Card>
       <Card>
         <CardBody>
-          Expense:
-          <span className="text-red-400">
-            <LockContent locked={locked}>
-              {currency(budget.expense)}
-            </LockContent>
-          </span>
+          <div className="flex flex-col sm:flex-row gap-2 justify-between">
+            <span>Expense:</span>
+            <span className="text-purple-400">
+              <LockContent locked={locked}>
+                {currency(budget.expense)}
+              </LockContent>
+            </span>
+          </div>
         </CardBody>
       </Card>
       <Card>
         <CardBody>
-          Income:
-          <span className="text-blue-400">
-            <LockContent locked={locked}>{currency(budget.income)}</LockContent>
-          </span>
+          <div className="flex flex-col sm:flex-row gap-2 justify-between">
+            <span>Income:</span>
+            <span className="text-blue-400">
+              <LockContent locked={locked}>
+                {currency(budget.income)}
+              </LockContent>
+            </span>
+          </div>
         </CardBody>
       </Card>
     </div>
