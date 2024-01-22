@@ -50,7 +50,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   const {
     data: movements,
     refetch: refetchMovement,
-    isFetching: loadingMovements,
+    isLoading: loadingMovements,
   } = useQuery({
     queryKey: ["movement"],
     enabled: budget.id !== undefined,

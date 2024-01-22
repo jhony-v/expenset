@@ -98,11 +98,13 @@ function HistoryItem({
             <div className="flex items-center">
               <Avatar
                 fallback={
-                  <Icon
-                    name={CategoryOptions[movement.category.name]}
-                    size={16}
-                    className="text-zinc-200"
-                  />
+                  movement.category && (
+                    <Icon
+                      name={CategoryOptions[movement.category.name]}
+                      size={16}
+                      className="text-zinc-200"
+                    />
+                  )
                 }
                 size="sm"
               />
