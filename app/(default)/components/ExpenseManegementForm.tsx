@@ -74,7 +74,7 @@ export default memo(function ExpenseManegementForm({
         <div className="grid grid-cols-2 gap-6">
           <Button
             color="primary"
-            className="bg-purple-600"
+            className="bg-purple-600 shadow-purple-600"
             variant="shadow"
             onClick={() => {
               reset();

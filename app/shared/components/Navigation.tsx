@@ -3,6 +3,7 @@ import Logo from "./Logo";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
 import Back from "./Back";
+import NavigationMobile from "./NavigationMobile";
 
 export default function Navigation({
   children,
@@ -17,8 +18,11 @@ export default function Navigation({
         {back && <Back />}
         <Logo />
       </div>
-
-      <div className="flex gap-2 ml-auto items-center">
+      <div className="ml-auto flex gap-2 items-center md:hidden">
+        <NavigationMobile />
+        {children}
+      </div>
+      <div className="gap-2 ml-auto items-center hidden md:flex">
         <Link href="/chat">
           <Button size="sm" variant="flat">
             Go AI
