@@ -37,10 +37,7 @@ export default async function Analytics() {
   return (
     <div className="px-4 container mx-auto">
       <Navigation back />
-      <AnalyticsBoard
-        movements={movements as any as Array<Movement>}
-        budget={budget}
-      />
+      <AnalyticsBoard movements={movements as any as Array<Movement>} />
     </div>
   );
 }

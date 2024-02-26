@@ -14,7 +14,7 @@ export default function NavigationMobile() {
   return (
     <Dropdown>
       <DropdownTrigger>
-        <Button variant="bordered">
+        <Button variant="light" className="px-2 min-w-0">
           <Menu className="text-white" />
         </Button>
       </DropdownTrigger>
