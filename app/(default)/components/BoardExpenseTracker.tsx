@@ -13,19 +13,19 @@ import {
 } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-import { Budget, Movement } from "@/app/shared/types";
+import { Movement } from "@/app/shared/types";
 import Chart from "./Chart";
 import History from "./History";
 import OverviewBudget from "./OverviewBudget";
-import Locker from "./Locker";
 import ExpenseManegementForm, { Payload } from "./ExpenseManegementForm";
 import EditMovement from "./EditMovement";
 import { LucidePlus } from "lucide-react";
 import { MovementType } from "@/app/constants";
+import serverOwnBudget from "@/app/shared/actions/serverOwnBudget";
+import serverOwnMovements from "@/app/shared/actions/serverOwnMovements";
 
 export default function BoardExpenseTracker({ session }: { session: Session }) {
   const supabase = createClientComponentClient();
-  const userId = session.user.id;
 
   const {
     data: budget,
@@ -33,20 +33,15 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     isFetching: fetchingBudget,
   } = useQuery({
     queryKey: ["budget"],
-    queryFn: () =>
-      supabase
-        .from("budget")
-        .select()
-        .eq("user_id", userId)
-        .then((e) => e.data?.[0]) as Promise<Budget>,
+    queryFn: () => serverOwnBudget(supabase, session),
     initialData: {
       amount: 0,
       expense: 0,
       settings: {
         locked: {
           active: false,
-          password: "",
         },
+        exchanges: {},
       },
     },
   });
@@ -58,25 +53,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   } = useQuery({
     queryKey: ["movement"],
     enabled: budget.id !== undefined,
-    queryFn: () =>
-      supabase
-        .from("movement")
-        .select(
-          `
-          id,
-          amount,
-          created_at,
-          description,
-          type,
-          category (
-            id,
-            name
-          )
-        `
-        )
-        .eq("budget_id", budget.id)
-        .order("created_at", { ascending: false })
-        .then((e) => e.data) as Promise<Array<Movement>>,
+    queryFn: () => serverOwnMovements(supabase, budget),
     initialData: [],
   });
 
@@ -143,11 +120,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             movements={movements}
             locked={locked}
             onCrosshairMoveData={setCrosshairMovements}
-            headerComponent={
-              <div className="ml-auto">
-                <Locker locked={locked} onLocked={setLocked} budget={budget} />
-              </div>
-            }
+            budget={budget}
           />
         </div>
         <div className="lg:w-unit-9xl space-y-6 mb-10">

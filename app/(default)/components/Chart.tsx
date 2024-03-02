@@ -19,23 +19,26 @@ import {
   createChart,
 } from "lightweight-charts";
 import { Checkbox, colors } from "@nextui-org/react";
-import { Movement } from "@/app/shared/types";
-import { MovementType } from "@/app/constants";
+import { Budget, Movement } from "@/app/shared/types";
+import { CurrencyCode, MovementType } from "@/app/constants";
 import { debounce } from "@/app/shared/utils/debounce";
 
 export default memo(function Chart({
   movements,
   locked,
   onCrosshairMoveData,
-  headerComponent,
+  budget,
 }: {
   movements: Array<Movement>;
   locked: boolean;
   onCrosshairMoveData(data: any): void;
-  headerComponent?: ReactNode;
+  budget: Budget;
 }) {
   const [visibleIncomes, setVisibleIncomes] = useState(true);
   const [visibleExpense, setVisibleExpense] = useState(true);
+  const {
+    settings: { exchanges },
+  } = budget;
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const movementsDataset = useMemo(() => {
@@ -48,17 +51,18 @@ export default memo(function Chart({
       income: {},
     };
     for (const movement of movements) {
-      const { type, amount, created_at } = movement;
+      const { type, amount, created_at, currency } = movement;
       const date = dayjs(created_at).format("YYYY-MM-DD");
+      const finalAmount = amount * (exchanges[currency] ?? 1);
       if (!result[type][date]) {
         result[type][date] = {
-          amount,
+          amount: finalAmount,
           type,
           created_at: date,
         };
         continue;
       }
-      result[type][date].amount += amount;
+      result[type][date].amount += finalAmount;
     }
     const groupedMovements = [
       ...Object.values(result.income),
@@ -73,7 +77,7 @@ export default memo(function Chart({
         };
       })
       .reverse();
-  }, [movements]);
+  }, [movements, exchanges]);
 
   const expenseDataSet = movementsDataset.filter(
     (movement: any) => movement.type === MovementType.EXPENSE
@@ -112,13 +116,14 @@ export default memo(function Chart({
 
     let expenseSeries: ISeriesApi<"Area">;
     let incomeSeries: ISeriesApi<"Area">;
+    const lineType = LineType.Curved;
 
     if (visibleExpense) {
       expenseSeries = chart.addAreaSeries({
         lineColor: colors.purple[400],
         topColor: colors.purple[400],
         bottomColor: "rgba(128, 0, 128, 0.1)",
-        lineType: LineType.Curved,
+        lineType,
         title: "expense",
       });
       expenseSeries.setData(expenseDataSet);
@@ -129,7 +134,7 @@ export default memo(function Chart({
         lineColor: colors.blue[400],
         topColor: colors.blue[400],
         bottomColor: "rgba(242, 176, 95, 0.1)",
-        lineType: LineType.Curved,
+        lineType,
         title: "income",
       });
       incomeSeries.setData(incomeDataSet);
@@ -197,7 +202,7 @@ export default memo(function Chart({
 
   return (
     <div className={`m-0 relative ${locked ? "blur-sm" : ""}`}>
-      <div className="flex gap-6 mb-2 items-center">
+      <div className="flex gap-6 mb-2 items-center whitespace-nowrap">
         <Checkbox
           color="secondary"
           size="sm"
@@ -214,7 +219,6 @@ export default memo(function Chart({
         >
           Show income
         </Checkbox>
-        {headerComponent}
       </div>
       <div ref={chartContainerRef} data-area="graphic" />
       {locked && (

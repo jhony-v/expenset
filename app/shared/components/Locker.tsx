@@ -1,5 +1,5 @@
 import { Button } from "@nextui-org/react";
-import UnlockModal from "./UnlockModal";
+import UnlockModal from "../../(default)/components/UnlockModal";
 import { Budget } from "@/app/shared/types";
 import { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";

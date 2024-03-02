@@ -1,8 +1,9 @@
 import { Budget } from "@/app/shared/types";
 import { Card, CardBody } from "@nextui-org/react";
-import LockContent from "./LockContent";
+import LockContent from "../../shared/components/LockContent";
 import useCurrency from "@/app/shared/hooks/useCurrency";
 import { memo } from "react";
+import { Currency } from "@/app/constants";
 
 export default memo(function OverviewBudget({
   budget,
@@ -21,7 +22,7 @@ export default memo(function OverviewBudget({
             <span>Budget:</span>
             <span className="text-green-400">
               <LockContent locked={locked}>
-                {currency(budget.amount)}
+                {currency(budget.amount, Currency.PEN.code)}
               </LockContent>
             </span>
           </div>

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Movement } from "@/app/shared/types";
 import { Avatar, Card, CardBody, Progress, cn } from "@nextui-org/react";
 import { MovementType } from "../../constants";
-import LockContent from "./LockContent";
+import LockContent from "../../shared/components/LockContent";
 import dayjs from "dayjs";
 import useCurrency from "@/app/shared/hooks/useCurrency";
 import React, { useState } from "react";
@@ -110,7 +110,7 @@ function HistoryItem({
               />
             </div>
             <div className="whitespace-normal">
-              <p className="mb-unit-xs text-zinc-200">
+              <p className="mb-unit-xs text-zinc-200 text-ellipsis">
                 <LockContent locked={locked} lockedContent="**************">
                   {movement.description}
                 </LockContent>
@@ -126,7 +126,10 @@ function HistoryItem({
               )}
             >
               <LockContent locked={locked}>
-                {`${isExpense ? "-" : "+"}${currency(movement.amount)}`}
+                {`${isExpense ? "-" : "+"}${currency(
+                  movement.amount,
+                  movement.currency
+                )}`}
               </LockContent>
             </div>
           </motion.div>

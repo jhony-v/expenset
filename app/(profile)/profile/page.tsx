@@ -1,14 +1,15 @@
 import Navigation from "@/app/shared/layouts/Navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { serverAuthenticated } from "@/app/shared/actions/serverAuth";
+import serverOwnBudget from "@/app/shared/actions/serverOwnBudget";
+import ProfileForm from "../components/ProfileForm";
 
 export default async function Profile() {
-  const cookieStore = cookies();
-  const supabase = createServerComponentClient({ cookies: () => cookieStore });
-  const { data } = await supabase.auth.getSession();
+  const { supabase, session } = await serverAuthenticated();
+  const budget = await serverOwnBudget(supabase, session);
+
   return (
-    <Navigation>
-      <div>{JSON.stringify(data)}</div>
+    <Navigation back>
+      <ProfileForm initialBudget={budget} />
     </Navigation>
   );
 }

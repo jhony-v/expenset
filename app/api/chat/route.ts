@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import serverOwnBudget from "@/app/shared/actions/serverOwnBudget";
+import serverOwnMovements from "@/app/shared/actions/serverOwnMovements";
 
 export const runtime = "edge";
 
@@ -38,20 +40,12 @@ export async function POST(req: Request) {
     console.log({ canGetFromServer });
 
     if (canGetFromServer) {
-      const budget = await supabase
-        .from("budget")
-        .select()
-        .eq("user_id", session?.user.id);
-
-      const budgetId = budget.data?.[0].id;
-      const movements = await supabase
-        .from("movement")
-        .select()
-        .eq("budget_id", budgetId);
+      const budget = await serverOwnBudget(supabase, session!);
+      const movements = await serverOwnMovements(supabase, budget);
 
       const payload = JSON.stringify({
-        budget: budget.data?.[0],
-        movements: movements.data,
+        budget: budget,
+        movements: movements,
       });
 
       await kv.set(`expenset:user:${userId}:budget`, payload, {

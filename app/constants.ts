@@ -3,13 +3,18 @@ export enum MovementType {
   INCOME = "income",
 }
 
+export enum CurrencyCode {
+  PEN = "PEN",
+  USD = "USD",
+}
+
 export const Currency = {
   PEN: {
-    code: 0,
+    code: "PEN",
     symbol: "S/",
   },
   USD: {
-    code: 1,
+    code: "USD",
     symbol: "$",
   },
 };

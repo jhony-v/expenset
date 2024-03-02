@@ -1,13 +1,18 @@
 import { useFormatter } from "next-intl";
+import { Currency, CurrencyCode } from "@/app/constants";
 
 export default function useCurrency() {
   const formatter = useFormatter();
 
-  const currency = (value: number) => {
-    return formatter.number(value, {
-      currency: "PEN",
+  const currency = (value: number, currency: CurrencyCode | null = null) => {
+    const currencySelected =
+      currency !== null ? Currency[currency] : Currency.PEN;
+    const formantterValue = formatter.number(value, {
+      currency: currencySelected.code as string,
       currencySign: "standard",
     });
+
+    return `${currencySelected.symbol} ${formantterValue}`;
   };
 
   return currency;

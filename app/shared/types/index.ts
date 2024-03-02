@@ -1,4 +1,4 @@
-import { MovementType } from "../../constants";
+import { CurrencyCode, MovementType } from "../../constants";
 
 export interface Budget {
   id?: string;
@@ -7,8 +7,8 @@ export interface Budget {
   settings: {
     locked: {
       active: boolean;
-      password: string;
     };
+    exchanges: Record<string, number>;
   };
 }
 
@@ -19,7 +19,7 @@ export interface Movement {
   type: MovementType;
   created_at?: string;
   category: Category;
-  currency: number;
+  currency: CurrencyCode;
 }
 
 export interface Category {
