@@ -1,4 +1,4 @@
-import Navigation from "@/app/shared/components/Navigation";
+import Navigation from "@/app/shared/layouts/Navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import AnalyticsBoard from "./AnalyticsBoard";
@@ -35,9 +35,8 @@ export default async function Analytics() {
     .then(({ data }) => data);
 
   return (
-    <div className="px-4 container mx-auto">
-      <Navigation back />
+    <Navigation back>
       <AnalyticsBoard movements={movements as any as Array<Movement>} />
-    </div>
+    </Navigation>
   );
 }

@@ -14,7 +14,7 @@ export default memo(function OverviewBudget({
   const currency = useCurrency();
 
   return (
-    <div className="grid grid-cols-3 gap-2 md:gap-6 font-medium">
+    <div className="grid grid-cols-2 gap-2 md:gap-6 font-medium">
       <Card>
         <CardBody>
           <div className="flex flex-col sm:flex-row gap-2 justify-between">
@@ -34,18 +34,6 @@ export default memo(function OverviewBudget({
             <span className="text-purple-400">
               <LockContent locked={locked}>
                 {currency(budget.expense)}
-              </LockContent>
-            </span>
-          </div>
-        </CardBody>
-      </Card>
-      <Card>
-        <CardBody>
-          <div className="flex flex-col sm:flex-row gap-2 justify-between">
-            <span>Income:</span>
-            <span className="text-blue-400">
-              <LockContent locked={locked}>
-                {currency(budget.income)}
               </LockContent>
             </span>
           </div>

@@ -1,12 +1,17 @@
 "use client";
 
-import { Button } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@nextui-org/react";
 import {
   Session,
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Budget, Movement } from "@/app/shared/types";
 import Chart from "./Chart";
@@ -15,12 +20,12 @@ import OverviewBudget from "./OverviewBudget";
 import Locker from "./Locker";
 import ExpenseManegementForm, { Payload } from "./ExpenseManegementForm";
 import EditMovement from "./EditMovement";
-import Navigation from "@/app/shared/components/Navigation";
+import { LucidePlus } from "lucide-react";
+import { MovementType } from "@/app/constants";
 
 export default function BoardExpenseTracker({ session }: { session: Session }) {
   const supabase = createClientComponentClient();
   const userId = session.user.id;
-  const navigation = useRouter();
 
   const {
     data: budget,
@@ -37,7 +42,6 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     initialData: {
       amount: 0,
       expense: 0,
-      income: 0,
       settings: {
         locked: {
           active: false,
@@ -76,6 +80,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     initialData: [],
   });
 
+  const [showForm, setShowForm] = useState(false);
   const [locked, setLocked] = useState(true);
   const [currentMovement, setCurrentMovement] = useState<Movement | null>(null);
   const [crosshairMovements, setCrosshairMovements] = useState<{
@@ -84,7 +89,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   } | null>(null);
 
   const handleSpend = useCallback(
-    async ({ amount, description }: Payload) => {
+    async ({ amount, description, currency, category }: Payload) => {
       const body = {
         amount: budget.amount - amount,
         expense: budget.expense + amount,
@@ -94,8 +99,10 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
       await supabase.from("movement").insert({
         amount,
         description,
-        type: "expense",
+        type: MovementType.EXPENSE,
         budget_id: budget.id,
+        category_id: category,
+        currency,
       });
       refetchMovement();
     },
@@ -103,28 +110,24 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   );
 
   const handleIncome = useCallback(
-    async ({ amount, description }: Payload) => {
+    async ({ amount, description, currency, category }: Payload) => {
       const body = {
         amount: budget.amount + amount,
-        income: budget.income + amount,
       };
       await supabase.from("budget").update(body).eq("id", budget.id);
       refetchBudget();
       await supabase.from("movement").insert({
         amount,
         description,
-        type: "income",
+        type: MovementType.INCOME,
         budget_id: budget.id,
+        category_id: category,
+        currency,
       });
       refetchMovement();
     },
     [budget, supabase, refetchBudget, refetchMovement]
   );
-
-  const handleLogOut = async () => {
-    await supabase.auth.signOut();
-    navigation.push("/login");
-  };
 
   useEffect(() => {
     if (budget.id) {
@@ -133,31 +136,21 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   }, [budget]);
 
   return (
-    <div className="p-3 container mx-auto">
-      <Navigation>
-        <Locker locked={locked} onLocked={setLocked} budget={budget} />
-        <Button size="sm" color="primary" variant="flat" onClick={handleLogOut}>
-          Log out
-        </Button>
-      </Navigation>
-      <section className="flex flex-col md:flex-row gap-6">
-        <div className="flex-grow">
-          <div className="flex flex-col-reverse gap-6">
-            <ExpenseManegementForm
-              budget={budget}
-              locked={locked}
-              loading={fetchingBudget}
-              onDeposit={handleIncome}
-              onSpend={handleSpend}
-            />
-            <Chart
-              movements={movements}
-              locked={locked}
-              onCrosshairMoveData={setCrosshairMovements}
-            />
-          </div>
+    <div className="w-full flex-1">
+      <section className="flex flex-col lg:flex-row gap-6 mt-2">
+        <div className="flex-1">
+          <Chart
+            movements={movements}
+            locked={locked}
+            onCrosshairMoveData={setCrosshairMovements}
+            headerComponent={
+              <div className="ml-auto">
+                <Locker locked={locked} onLocked={setLocked} budget={budget} />
+              </div>
+            }
+          />
         </div>
-        <div className=" md:w-unit-9xl space-y-6">
+        <div className="lg:w-unit-9xl space-y-6 mb-10">
           <OverviewBudget budget={budget} locked={locked} />
           <History
             loading={loadingMovements}
@@ -174,6 +167,33 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
           />
         </div>
       </section>
+      <Button
+        isIconOnly
+        className="rounded-full fixed right-5 md:right-10 bottom-10"
+        color="primary"
+        size="lg"
+        onClick={() => setShowForm(true)}
+      >
+        <LucidePlus />
+      </Button>
+      <Modal isOpen={showForm} onOpenChange={setShowForm} size="xl">
+        <ModalContent>
+          <ModalHeader>
+            <h2>Add new movement</h2>
+          </ModalHeader>
+          <ModalBody>
+            {showForm && (
+              <ExpenseManegementForm
+                budget={budget}
+                locked={locked}
+                loading={fetchingBudget}
+                onDeposit={handleIncome}
+                onSpend={handleSpend}
+              />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       {currentMovement && (
         <EditMovement
           movement={currentMovement}

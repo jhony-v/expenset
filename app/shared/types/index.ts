@@ -3,7 +3,6 @@ import { MovementType } from "../../constants";
 export interface Budget {
   id?: string;
   amount: number;
-  income: number;
   expense: number;
   settings: {
     locked: {
@@ -20,6 +19,7 @@ export interface Movement {
   type: MovementType;
   created_at?: string;
   category: Category;
+  currency: number;
 }
 
 export interface Category {

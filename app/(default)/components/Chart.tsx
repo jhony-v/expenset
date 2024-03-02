@@ -8,6 +8,7 @@ import {
   useState,
   memo,
   startTransition,
+  ReactNode,
 } from "react";
 import {
   ColorType,
@@ -26,10 +27,12 @@ export default memo(function Chart({
   movements,
   locked,
   onCrosshairMoveData,
+  headerComponent,
 }: {
   movements: Array<Movement>;
   locked: boolean;
   onCrosshairMoveData(data: any): void;
+  headerComponent?: ReactNode;
 }) {
   const [visibleIncomes, setVisibleIncomes] = useState(true);
   const [visibleExpense, setVisibleExpense] = useState(true);
@@ -103,7 +106,7 @@ export default memo(function Chart({
         },
       },
       width: chartContainerRef.current.clientWidth,
-      height: window.matchMedia("(min-width: 700px)").matches ? 450 : 300,
+      height: window.matchMedia("(min-width: 700px)").matches ? 600 : 300,
     });
     chart.timeScale().fitContent();
 
@@ -194,7 +197,7 @@ export default memo(function Chart({
 
   return (
     <div className={`m-0 relative ${locked ? "blur-sm" : ""}`}>
-      <div className="flex gap-6 mb-2">
+      <div className="flex gap-6 mb-2 items-center">
         <Checkbox
           color="secondary"
           size="sm"
@@ -211,6 +214,7 @@ export default memo(function Chart({
         >
           Show income
         </Checkbox>
+        {headerComponent}
       </div>
       <div ref={chartContainerRef} data-area="graphic" />
       {locked && (

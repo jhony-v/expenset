@@ -2,11 +2,9 @@
 
 import { useChat } from "ai/react";
 import { Avatar, Button, Progress, ScrollShadow } from "@nextui-org/react";
-import Send from "@/app/shared/icons/Send";
 import Logo from "@/app/shared/components/Logo";
-import Bot from "@/app/shared/icons/Bot";
-import Activity from "@/app/shared/icons/Activity";
 import Back from "@/app/shared/components/Back";
+import { LucideActivity, LucideBot, LucideSend } from "lucide-react";
 
 export default function MyComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -53,7 +51,13 @@ export default function MyComponent() {
                     <div>
                       <Avatar
                         size="sm"
-                        icon={isUser ? <Activity /> : <Bot />}
+                        icon={
+                          isUser ? (
+                            <LucideActivity className="text-danger-400" />
+                          ) : (
+                            <LucideBot className="text-warning-400" />
+                          )
+                        }
                       />
                     </div>
                     <div
@@ -90,7 +94,7 @@ export default function MyComponent() {
               type="submit"
               radius="full"
             >
-              <Send />
+              <LucideSend />
             </Button>
           </form>
         </footer>

@@ -41,7 +41,7 @@ export default function Locker({
       {locked ? (
         <Button
           size="sm"
-          variant="faded"
+          variant="light"
           onClick={() => {
             setLockModalOpen(true);
           }}
@@ -53,7 +53,7 @@ export default function Locker({
         <div>
           <Button
             size="sm"
-            variant="flat"
+            variant="light"
             aria-label="hide money"
             onClick={async () => {
               onLocked(true);
