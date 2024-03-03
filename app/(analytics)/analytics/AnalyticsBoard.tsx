@@ -44,7 +44,7 @@ export default function AnalyticsBoard({
           result[date] = {
             date,
             totals: [],
-            total: movement.amount,
+            total: 0,
           };
         }
         const { category } = movement;

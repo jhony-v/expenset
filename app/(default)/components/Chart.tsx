@@ -8,11 +8,11 @@ import {
   useState,
   memo,
   startTransition,
-  ReactNode,
 } from "react";
 import {
   ColorType,
   ISeriesApi,
+  LineStyle,
   LineType,
   MouseEventParams,
   Time,
@@ -20,7 +20,7 @@ import {
 } from "lightweight-charts";
 import { Checkbox, colors } from "@nextui-org/react";
 import { Budget, Movement } from "@/app/shared/types";
-import { CurrencyCode, MovementType } from "@/app/constants";
+import { MovementType } from "@/app/constants";
 import { debounce } from "@/app/shared/utils/debounce";
 
 export default memo(function Chart({
@@ -79,6 +79,32 @@ export default memo(function Chart({
       .reverse();
   }, [movements, exchanges]);
 
+  const expenseMonthly = useMemo(() => {
+    const result: Record<
+      string,
+      {
+        time: string;
+        value: number;
+      }
+    > = {};
+    for (const movement of movements) {
+      if (movement.type === MovementType.EXPENSE) {
+        const date = dayjs(movement.created_at)
+          .startOf("month")
+          .format("YYYY-MM-DD");
+        if (!result[date]) {
+          result[date] = {
+            time: date,
+            value: movement.amount,
+          };
+        } else {
+          result[date].value += movement.amount;
+        }
+      }
+    }
+    return Object.values(result).reverse();
+  }, [movements]);
+
   const expenseDataSet = movementsDataset.filter(
     (movement: any) => movement.type === MovementType.EXPENSE
   );
@@ -112,6 +138,7 @@ export default memo(function Chart({
       width: chartContainerRef.current.clientWidth,
       height: window.matchMedia("(min-width: 700px)").matches ? 600 : 300,
     });
+
     chart.timeScale().fitContent();
 
     let expenseSeries: ISeriesApi<"Area">;
@@ -133,12 +160,21 @@ export default memo(function Chart({
       incomeSeries = chart.addAreaSeries({
         lineColor: colors.blue[400],
         topColor: colors.blue[400],
-        bottomColor: "rgba(242, 176, 95, 0.1)",
+        bottomColor: "rgba(24, 76, 245, 0.1)",
         lineType,
-        title: "income",
       });
       incomeSeries.setData(incomeDataSet);
     }
+
+    const expenseMonthlySeries = chart.addAreaSeries({
+      title: "monthly",
+      lineColor: colors.red[400],
+      topColor: "rgba(242, 76, 65, 0.1)",
+      bottomColor: "rgba(242, 76, 65, 0.1)",
+      lineType: LineType.WithSteps,
+      lineStyle: LineStyle.SparseDotted,
+    });
+    expenseMonthlySeries.setData(expenseMonthly);
 
     const getMovementsIdsInSeries = (
       param: MouseEventParams<Time>,
@@ -195,9 +231,10 @@ export default memo(function Chart({
     expenseDataSet,
     incomeDataSet,
     visibleIncomes,
-    onCrosshairMoveData,
     visibleExpense,
+    expenseMonthly,
     movements,
+    onCrosshairMoveData,
   ]);
 
   return (
