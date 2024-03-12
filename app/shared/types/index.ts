@@ -17,7 +17,7 @@ export interface Movement {
   id: number;
   description: string;
   type: MovementType;
-  created_at?: string;
+  created_at: string;
   category: Category;
   currency: CurrencyCode;
 }

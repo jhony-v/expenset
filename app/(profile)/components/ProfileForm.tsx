@@ -8,6 +8,7 @@ import {
 import { Button, Input, Switch } from "@nextui-org/react";
 import { Budget } from "@/app/shared/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useState } from "react";
 
 export default function ProfileForm({
   initialBudget: budget = {
@@ -23,29 +24,35 @@ export default function ProfileForm({
 }) {
   const supabase = createClientComponentClient();
   const exchangesList = Object.keys(budget.settings.exchanges);
+  const [loading, setLoading] = useState(false);
 
   return (
     <form
       className="space-y-4 w-full mx-auto md:max-w-96"
       onSubmit={async (e) => {
         e.preventDefault();
-        const form = new FormData(e.target as HTMLFormElement);
-        const payload: Budget = {
-          amount: Number(form.get("amount") ?? budget.amount),
-          expense: Number(form.get("expense") ?? budget.expense),
-          settings: {
-            ...budget.settings,
-            locked: {
-              active: form.get("active") === "" ? true : false,
+        try {
+          setLoading(true);
+          const form = new FormData(e.target as HTMLFormElement);
+          const payload: Budget = {
+            amount: Number(form.get("amount") ?? budget.amount),
+            expense: Number(form.get("expense") ?? budget.expense),
+            settings: {
+              ...budget.settings,
+              locked: {
+                active: form.get("active") === "" ? true : false,
+              },
+              exchanges: Object.fromEntries(
+                exchangesList.map((exchange) => {
+                  return [exchange, Number(form.get(`exchanges:${exchange}`))];
+                })
+              ),
             },
-            exchanges: Object.fromEntries(
-              exchangesList.map((exchange) => {
-                return [exchange, Number(form.get(`exchanges:${exchange}`))];
-              })
-            ),
-          },
-        };
-        await supabase.from("budget").update(payload).eq("id", budget.id);
+          };
+          await supabase.from("budget").update(payload).eq("id", budget.id);
+        } finally {
+          setLoading(false);
+        }
       }}
     >
       <ProfileSection title="My current budget" icon={<LucidePiggyBank />}>
@@ -78,7 +85,7 @@ export default function ProfileForm({
       <ProfileSection title="My lock security" icon={<LucideLockKeyhole />}>
         <Switch name="active" defaultChecked={budget.settings.locked.active} />
       </ProfileSection>
-      <Button color="primary" fullWidth type="submit">
+      <Button isLoading={loading} color="primary" fullWidth type="submit">
         Save changes
       </Button>
     </form>

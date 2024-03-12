@@ -28,7 +28,7 @@ export default function Navigation({
           </Link>
           <Link href="/chat" className="w-full">
             <Button size="sm" fullWidth variant="flat">
-              Go AI
+              Bot
             </Button>
           </Link>
           <Link href="/analytics" className="w-full">

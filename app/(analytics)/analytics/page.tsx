@@ -7,7 +7,9 @@ import serverOwnMovements from "@/app/shared/actions/serverOwnMovements";
 export default async function Analytics() {
   const { supabase, session } = await serverAuthenticated();
   const budget = await serverOwnBudget(supabase, session);
-  const movements = await serverOwnMovements(supabase, budget);
+  const movements = (await serverOwnMovements(supabase, budget)).sort((a, b) =>
+    a.created_at.localeCompare(b.created_at)
+  );
 
   return (
     <Navigation back>
