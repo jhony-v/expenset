@@ -1,8 +1,9 @@
 {
   "name": "expenset",
   "version": "1.0.0",
-  "description": "<p align=\"center\">     <img src=\"./preview.png\" width=\"150\" /> </p>",
+  "description": "Expenset is a web app to track your expenses and incomes",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

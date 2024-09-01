@@ -18,8 +18,7 @@ import {
   Time,
   createChart,
 } from "lightweight-charts";
-import { colors } from "@nextui-org/theme";
-import { Checkbox } from "@nextui-org/react";
+import { Checkbox, colors } from "@nextui-org/react";
 import { Budget, Movement } from "@/app/shared/types";
 import { MovementType } from "@/app/constants";
 import { debounce } from "@/app/shared/utils/debounce";
