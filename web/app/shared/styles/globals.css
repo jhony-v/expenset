@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+body > [data-overlay-container] {
+  width: 100%;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  @apply md:w-2 md:bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply md:rounded-md md:bg-slate-700;
+}
