@@ -186,7 +186,7 @@ function TableDetail({ totals }: { totals: Array<Totals> }) {
                       <LucideDatabase size={15} />
                       {item.id}
                     </TableCell>
-                    <TableCell>{item.value.toFixed(3)}</TableCell>
+                    <TableCell>{item.value.toFixed(2)}</TableCell>
                     <TableCell>{item.movements.length}</TableCell>
                   </TableRow>
                 ))}

@@ -7,12 +7,12 @@ export default function useCurrency() {
   const currency = (value: number, currency: CurrencyCode | null = null) => {
     const currencySelected =
       currency !== null ? Currency[currency] : Currency.PEN;
-    const formantterValue = formatter.number(value, {
+    const formatedValue = formatter.number(value, {
       currency: currencySelected.code as string,
       currencySign: "standard",
     });
 
-    return `${currencySelected.symbol} ${formantterValue}`;
+    return `${currencySelected.symbol} ${formatedValue}`;
   };
 
   return currency;
