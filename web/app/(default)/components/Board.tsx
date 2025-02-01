@@ -67,9 +67,10 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
 
   const handleSpend = useCallback(
     async ({ amount, description, currency, category }: Payload) => {
+      const finalAmount = amount * (budget.exchanges[currency] ?? 1);
       const body = {
-        amount: budget.amount - amount,
-        expense: budget.expense + amount,
+        amount: budget.amount - finalAmount,
+        expense: budget.expense + finalAmount,
       };
       await supabase.from("budget").update(body).eq("id", budget.id);
       refetchBudget();
@@ -88,8 +89,9 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
 
   const handleIncome = useCallback(
     async ({ amount, description, currency, category }: Payload) => {
+      const finalAmount = amount * (budget.exchanges[currency] ?? 1);
       const body = {
-        amount: budget.amount + amount,
+        amount: budget.amount + finalAmount,
       };
       await supabase.from("budget").update(body).eq("id", budget.id);
       refetchBudget();
