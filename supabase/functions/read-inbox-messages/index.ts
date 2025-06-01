@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
 
     const connection = await pool.connect();
     const categories = (
-      await connection.queryObject`SELECT id, name FROM categories`
+      await connection.queryObject`SELECT id, name FROM category`
     ).rows as Array<{ id: number; name: string }>;
 
     connection.release();
