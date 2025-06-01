@@ -31,9 +31,8 @@ jobs:
           echo '${{ secrets.CLASPRC }}' > ~/.clasprc.json
 
       - name: Install dependencies
-        working-directory: hooks
-        run: pnpm install
+        run: pnpm add -g @google/clasp
       
       - name: Push to Apps Script
         working-directory: hooks
-        run: npx clasp push --force
+        run: clasp push --force
