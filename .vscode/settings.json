@@ -4,5 +4,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "deno.enable": true,
+  "deno.importMap": "./supabase/functions/read-inbox-messages/deno.json"
 }
