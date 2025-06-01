@@ -21,15 +21,12 @@ interface Totals {
   id: string;
   value: number;
   movements: Array<Movement>;
-  budget?: Budget;
 }
 
 export default function AnalyticsBoard({
   movements,
-  budget,
 }: {
   movements: Array<Movement>;
-  budget: Budget;
 }) {
   const data = useMemo(() => {
     const result: Record<
@@ -73,12 +70,12 @@ export default function AnalyticsBoard({
       } else {
         result[date].monthlyIncomes +=
           currency === Currency.USD.code
-            ? movement.amount * budget.settings.exchanges.USD
+            ? movement.amount * movement.rate
             : movement.amount;
       }
     }
     return Object.values(result);
-  }, [movements, budget]);
+  }, [movements]);
 
   return (
     <section className="w-full">

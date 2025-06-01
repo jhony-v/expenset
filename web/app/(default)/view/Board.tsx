@@ -14,11 +14,13 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { Movement } from "@/app/shared/types";
-import Chart from "./Chart";
-import History from "./History";
-import OverviewBudget from "./OverviewBudget";
-import ExpenseManegementForm, { Payload } from "./ExpenseManegementForm";
-import EditMovement from "./EditMovement";
+import Chart from "../components/Chart";
+import History from "../components/History";
+import OverviewBudget from "../components/OverviewBudget";
+import ExpenseManegementForm, {
+  Payload,
+} from "../components/ExpenseManegementForm";
+import EditMovement from "../components/EditMovement";
 import { LucidePlus } from "lucide-react";
 import { MovementType } from "@/app/constants";
 import serverOwnBudget from "@/app/shared/actions/serverOwnBudget";
@@ -41,7 +43,6 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         locked: {
           active: false,
         },
-        exchanges: {},
       },
     },
   });
@@ -65,9 +66,16 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     income: Set<number>;
   } | null>(null);
 
+  const fetchExchangeRate = useCallback(async () => {
+    const api = await fetch("/api/exchange");
+    const data = await api.json();
+    return data as Record<string, number>;
+  }, []);
+
   const handleSpend = useCallback(
     async ({ amount, description, currency, category }: Payload) => {
-      const finalAmount = amount * (budget.settings.exchanges[currency] ?? 1);
+      const exchanges = await fetchExchangeRate();
+      const finalAmount = amount * (exchanges[currency] ?? 1);
       const body = {
         amount: budget.amount - finalAmount,
         expense: budget.expense + finalAmount,
@@ -81,15 +89,17 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         budget_id: budget.id,
         category_id: category,
         currency,
+        rate: exchanges.USD,
       });
       refetchMovement();
     },
-    [budget, supabase, refetchBudget, refetchMovement]
+    [budget, supabase, refetchBudget, refetchMovement, fetchExchangeRate]
   );
 
   const handleIncome = useCallback(
     async ({ amount, description, currency, category }: Payload) => {
-      const finalAmount = amount * (budget.settings.exchanges[currency] ?? 1);
+      const exchanges = await fetchExchangeRate();
+      const finalAmount = amount * (exchanges[currency] ?? 1);
       const body = {
         amount: budget.amount + finalAmount,
       };
@@ -102,10 +112,11 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         budget_id: budget.id,
         category_id: category,
         currency,
+        rate: exchanges.USD,
       });
       refetchMovement();
     },
-    [budget, supabase, refetchBudget, refetchMovement]
+    [budget, supabase, refetchBudget, refetchMovement, fetchExchangeRate]
   );
 
   useEffect(() => {
@@ -122,7 +133,6 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             movements={movements}
             locked={locked}
             onCrosshairMoveData={setCrosshairMovements}
-            budget={budget}
           />
         </div>
         <div className="lg:w-[42rem] space-y-6 mb-10 overflow-y-auto">

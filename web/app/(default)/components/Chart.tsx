@@ -19,7 +19,7 @@ import {
   createChart,
 } from "lightweight-charts";
 import { Checkbox, colors } from "@nextui-org/react";
-import { Budget, Movement } from "@/app/shared/types";
+import { Movement } from "@/app/shared/types";
 import { MovementType } from "@/app/constants";
 import { debounce } from "@/app/shared/utils/debounce";
 
@@ -45,18 +45,13 @@ export default memo(function Chart({
   movements,
   locked,
   onCrosshairMoveData,
-  budget,
 }: {
   movements: Array<Movement>;
   locked: boolean;
   onCrosshairMoveData(data: any): void;
-  budget: Budget;
 }) {
   const [visibleIncomes, setVisibleIncomes] = useState(true);
   const [visibleExpense, setVisibleExpense] = useState(true);
-  const {
-    settings: { exchanges },
-  } = budget;
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const movementsDataset = useMemo(() => {
@@ -69,9 +64,9 @@ export default memo(function Chart({
       income: {},
     };
     for (const movement of movements) {
-      const { type, amount, created_at, currency } = movement;
+      const { type, amount, created_at, currency, rate } = movement;
       const date = dayjs(created_at).format("YYYY-MM-DD");
-      const finalAmount = amount * (exchanges[currency] ?? 1);
+      const finalAmount = amount * (rate ?? 1);
       if (!result[type][date]) {
         result[type][date] = {
           amount: finalAmount,
@@ -95,7 +90,7 @@ export default memo(function Chart({
         };
       })
       .reverse();
-  }, [movements, exchanges]);
+  }, [movements]);
 
   const expenseMonthly = useMemo(() => {
     const result: Record<

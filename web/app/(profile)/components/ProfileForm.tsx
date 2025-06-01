@@ -1,10 +1,6 @@
 "use client";
 import ProfileSection from "./ProfileSection";
-import {
-  LucideDollarSign,
-  LucideLockKeyhole,
-  LucidePiggyBank,
-} from "lucide-react";
+import { LucideLockKeyhole, LucidePiggyBank } from "lucide-react";
 import { Button, Input, Switch } from "@nextui-org/react";
 import { Budget } from "@/app/shared/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -16,14 +12,12 @@ export default function ProfileForm({
     expense: 0,
     settings: {
       locked: { active: false },
-      exchanges: {},
     },
   },
 }: {
   initialBudget: Budget;
 }) {
   const supabase = createClientComponentClient();
-  const exchangesList = Object.keys(budget.settings.exchanges);
   const [loading, setLoading] = useState(false);
 
   return (
@@ -42,11 +36,6 @@ export default function ProfileForm({
               locked: {
                 active: form.get("active") === "" ? true : false,
               },
-              exchanges: Object.fromEntries(
-                exchangesList.map((exchange) => {
-                  return [exchange, Number(form.get(`exchanges:${exchange}`))];
-                })
-              ),
             },
           };
           await supabase.from("budget").update(payload).eq("id", budget.id);
@@ -68,19 +57,6 @@ export default function ProfileForm({
           placeholder="expense"
           defaultValue={String(budget.expense)}
         />
-      </ProfileSection>
-      <ProfileSection title="My exchange rates" icon={<LucideDollarSign />}>
-        {exchangesList.map((exchange) => {
-          return (
-            <Input
-              type="number"
-              key={exchange}
-              label={exchange}
-              name={`exchanges:${exchange}`}
-              defaultValue={String(budget.settings.exchanges[exchange])}
-            />
-          );
-        })}
       </ProfileSection>
       <ProfileSection title="My lock security" icon={<LucideLockKeyhole />}>
         <Switch name="active" defaultChecked={budget.settings.locked.active} />

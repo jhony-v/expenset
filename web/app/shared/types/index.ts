@@ -8,7 +8,6 @@ export interface Budget {
     locked: {
       active: boolean;
     };
-    exchanges: Record<string, number>;
   };
 }
 
@@ -20,6 +19,7 @@ export interface Movement {
   created_at: string;
   category: Category;
   currency: CurrencyCode;
+  rate: number;
 }
 
 export interface Category {

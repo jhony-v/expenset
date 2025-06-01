@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { Avatar, Button, Progress, ScrollShadow } from "@nextui-org/react";
 import Logo from "@/app/shared/components/Logo";
 import Back from "@/app/shared/components/Back";
@@ -8,8 +8,8 @@ import { LucideActivity, LucideBot, LucideSend } from "lucide-react";
 
 export default function MyComponent() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    onError() {
-      console.log("error");
+    onError(e) {
+      console.log("error", e);
     },
   });
 

@@ -13,7 +13,7 @@ export default async function Analytics() {
 
   return (
     <Navigation back>
-      <AnalyticsBoard movements={movements} budget={budget} />
+      <AnalyticsBoard movements={movements} />
     </Navigation>
   );
 }
