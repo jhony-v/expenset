@@ -89,12 +89,12 @@ export default function AnalyticsBoard({
                     {dayjs(item.date).format("MMMM YYYY")}
                   </p>
                   <Chip variant="flat">
-                    <span className="text-primary">
-                      {item.monthlyIncomes.toFixed(2)}
-                    </span>{" "}
-                    /{" "}
                     <span className="text-slate-400">
                       {item.monthlyExpenses.toFixed(2)}
+                    </span>{" "}
+                    /{" "}
+                    <span className="text-primary">
+                      {item.monthlyIncomes.toFixed(2)}
                     </span>
                   </Chip>
                 </div>

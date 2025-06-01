@@ -15,6 +15,7 @@ export default async function serverOwnMovements(
       created_at,
       description,
       type,
+      rate,
       category (
         id,
         name
