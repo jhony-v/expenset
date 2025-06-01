@@ -24,3 +24,4 @@ jobs:
       - run: | 
           cd supabase/functions/read-inbox-messages
           supabase functions deploy --project-ref $PROJECT_ID
+          supabase functions deploy read-inbox-messages --no-verify-jwt

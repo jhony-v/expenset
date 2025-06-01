@@ -73,9 +73,6 @@ Deno.serve(async (req) => {
       await connection.queryObject`SELECT id, name FROM categories`
     ).rows as Array<{ id: number; name: string }>;
 
-    // const me = "1f9004ce-b0c0-420a-b392-b45de17ddec9";
-    // const budget_id = 1;
-
     connection.release();
 
     const modelResponse = await ai.getGenerativeModel({
