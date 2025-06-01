@@ -1,0 +1,2 @@
+[functions.read-inbox-messages]
+verify_jwt = false
