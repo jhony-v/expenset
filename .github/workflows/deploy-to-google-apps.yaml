@@ -3,6 +3,8 @@ name: Deploy to Google Apps Script
 on:
   push:
     branches: [main]
+    paths:
+      - 'hooks/**'
 
 jobs:
   deploy:
@@ -17,7 +19,10 @@ jobs:
           echo '${{ secrets.CLASP }}' > ./.clasp.json
           echo '${{ secrets.CLASPRC }}' > ~/.clasprc.json
 
+      - name: Install dependencies
+        working-directory: hooks
+        run: pnpm install
+      
       - name: Push to Apps Script
-        run: |
-          cd hooks
-          npx clasp push --force
+        working-directory: hooks
+        run: npx clasp push --force
