@@ -1,0 +1,22 @@
+name: Deploy to Google Apps Script
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up clasp
+        run: |
+          cd hooks 
+          echo '${{ secrets.CLASP }}' > ./.clasp.json
+          echo '${{ secrets.CLASPRC }}' > ~/.clasprc.json
+
+      - name: Push to Apps Script
+        run: |
+          clasp push --force

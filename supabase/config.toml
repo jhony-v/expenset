@@ -1,2 +1,5 @@
 [functions.read-inbox-messages]
 verify_jwt = false
+
+[functions.get-exchange-rate]
+verify_jwt = false
