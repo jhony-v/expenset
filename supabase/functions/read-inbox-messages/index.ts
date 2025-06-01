@@ -2,8 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { GoogleGenerativeAI } from "npm:@google/generative-ai@0.21.0";
 import * as postgres from "https://deno.land/x/postgres@v0.17.0/mod.ts";
 
-const databaseUrl = Deno.env.get("SUPABASE_DB_URL")!;
-
+const databaseUrl = Deno.env.get("SUPABASE_DB_URL");
 const pool = new postgres.Pool(databaseUrl, 3, true);
 
 const extractValues = (value: string) => {
@@ -62,19 +61,19 @@ const model = "gemini-2.5-flash-preview-05-20";
 Deno.serve(async (req) => {
   if (req.method === "POST") {
     const response = await req.json();
-    const values = extractValues(response.body) as Record<
-      string,
-      string | number | null
-    >;
+    const values = extractValues(response.body);
     const date = response.date;
-
     const connection = await pool.connect();
-    const categories = (
+    const dbCategories = (
       await connection.queryObject`SELECT id, name FROM category`
-    ).rows as Array<{ id: number; name: string }>;
-
+    ).rows;
+    const categories = (
+      dbCategories as Array<{ id: number; name: string }>
+    ).map(({ id, name }) => ({
+      id: Number(id),
+      name,
+    }));
     connection.release();
-
     const modelResponse = await ai.getGenerativeModel({
       model,
     });
@@ -84,16 +83,15 @@ Deno.serve(async (req) => {
           role: "user",
           parts: [
             {
-              text: `Return a json by getting category_id: ${JSON.stringify(
+              text: `You are an assistant that classifies a bank transaction into one of the following categories:\n\n${JSON.stringify(
                 categories
-              )}`,
+              )}\n\nGiven this transaction message:\n\n"${values}"\n\nReturn a JSON like: { "category_id": number }\n\nOnly pick one category from the list based on the message content.`,
             },
           ],
         },
       ],
     });
     const text = result.response.text();
-
     return Response.json({
       date,
       ...values,
