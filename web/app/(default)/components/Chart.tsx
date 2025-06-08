@@ -20,7 +20,7 @@ import {
 } from "lightweight-charts";
 import { Checkbox, colors } from "@nextui-org/react";
 import { Movement } from "@/app/shared/types";
-import { MovementType } from "@/app/constants";
+import { CurrencyCode, MovementType } from "@/app/constants";
 import { debounce } from "@/app/shared/utils/debounce";
 
 const graphicColors = {
@@ -66,7 +66,7 @@ export default memo(function Chart({
     for (const movement of movements) {
       const { type, amount, created_at, currency, rate } = movement;
       const date = dayjs(created_at).format("YYYY-MM-DD");
-      const finalAmount = amount * (rate ?? 1);
+      const finalAmount = amount * (currency === CurrencyCode.USD ? rate : 1);
       if (!result[type][date]) {
         result[type][date] = {
           amount: finalAmount,
