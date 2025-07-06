@@ -50,28 +50,31 @@ export default function AnalyticsBoard({
       }
       const { category, type, currency } = movement;
 
+      const value =
+        currency === Currency.USD.code
+          ? movement.amount * movement.rate
+          : movement.amount;
+
       if (type === MovementType.EXPENSE) {
         const amount = Number(movement.amount.toFixed(2));
 
         const index = result[date].totals.findIndex(
           (item) => item.id === category.name
         );
+
         if (index !== -1) {
           result[date].totals[index].value += amount;
           result[date].totals[index].movements.push(movement);
         } else {
           result[date].totals.push({
             id: category.name,
-            value: movement.amount,
+            value: value,
             movements: [movement],
           });
         }
-        result[date].monthlyExpenses += amount;
+        result[date].monthlyExpenses += value;
       } else {
-        result[date].monthlyIncomes +=
-          currency === Currency.USD.code
-            ? movement.amount * movement.rate
-            : movement.amount;
+        result[date].monthlyIncomes += value;
       }
     }
     return Object.values(result);

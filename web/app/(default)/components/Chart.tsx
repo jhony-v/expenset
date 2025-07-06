@@ -102,16 +102,20 @@ export default memo(function Chart({
     > = {};
     for (const movement of movements) {
       if (movement.type === MovementType.EXPENSE) {
+        const finalAmount =
+          movement.amount *
+          (movement.currency === CurrencyCode.USD ? movement.rate : 1);
+
         const date = dayjs(movement.created_at)
           .startOf("month")
           .format("YYYY-MM-DD");
         if (!result[date]) {
           result[date] = {
             time: date,
-            value: movement.amount,
+            value: finalAmount,
           };
         } else {
-          result[date].value += movement.amount;
+          result[date].value += finalAmount;
         }
       }
     }
