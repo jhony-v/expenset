@@ -26,7 +26,7 @@ function checkUnreadEmails() {
           subject,
           from: msg.getFrom(),
           date: msg.getDate(),
-          body: msg.getPlainBody().slice(0, 1500),
+          body: msg.getPlainBody().slice(0, 4000),
         }),
       });
       Logger.log(response.getResponseCode() + " " + subject);

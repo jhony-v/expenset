@@ -30,13 +30,18 @@ const extractValues = (body: string) => {
   let amount = 0;
   let currency = "";
   let description = "";
-  // Both banks only notify purchases for now
+  // Both banks only notify purchases and transfers for now
   const type = "expense";
-  for (const line of body.split("\n")) {
+  // HTML emails put the value on the same line as the label or on the next one
+  const lines = body.split("\n").map((l) => l.trim()).filter(Boolean);
+  const valueOf = (i: number, label: string) =>
+    lines[i].slice(lines[i].toLowerCase().indexOf(label) + label.length)
+      .replace(/^[\s:*]+/, "").trim() || lines[i + 1] || "";
+  lines.forEach((line, i) => {
     const lower = line.toLowerCase();
     if (bank === "bcp") {
       if (lower.includes("total del consumo")) {
-        const money = parseMoney(line);
+        const money = parseMoney(valueOf(i, "total del consumo"));
         if (money) ({ amount, currency } = money);
       }
       if (lower.includes("empresa")) {
@@ -44,14 +49,17 @@ const extractValues = (body: string) => {
       }
     } else if (bank === "interbank") {
       if (lower.includes("moneda y monto")) {
-        const money = parseMoney(line);
+        const money = parseMoney(valueOf(i, "moneda y monto"));
         if (money) ({ amount, currency } = money);
       }
       if (lower.includes("comercio")) {
-        description = line.split(":").slice(1).join(":").trim() || description;
+        description = valueOf(i, "comercio") || description;
+      }
+      if (lower.includes("cuenta destino") && !description) {
+        description = `Transferencia a ${valueOf(i, "cuenta destino")}`;
       }
     }
-  }
+  });
   return { bank, amount, currency, description, type };
 };
 
