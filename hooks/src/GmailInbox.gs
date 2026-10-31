@@ -3,6 +3,10 @@ function checkUnreadEmails() {
   Logger.log("Threads found: " + threads.length);
   const scriptProperties = PropertiesService.getScriptProperties();
   const supabaseUrl = scriptProperties.getProperty("SUPABASE_URL");
+  if (!supabaseUrl) {
+    Logger.log("Missing SUPABASE_URL in Project Settings > Script Properties");
+    return;
+  }
   const supabaseTriggers = scriptProperties.getProperty("SUPABASE_TRIGGERS") || "";
   // Empty SUPABASE_TRIGGERS = send every unread email (useful for testing)
   const conditions = supabaseTriggers.split(",").map((c) => c.trim()).filter(Boolean);
