@@ -11,6 +11,9 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import useCurrency from "@/app/shared/hooks/useCurrency";
 import LockContent from "@/app/shared/components/LockContent";
+import Icon from "@/app/shared/components/Icon";
+import { CategoryOptions } from "@/app/shared/components/CategoryIcon";
+import useGetCategories from "@/app/shared/hooks/useGetCategories";
 
 export default function PendingDrafts({
   drafts,
@@ -23,6 +26,9 @@ export default function PendingDrafts({
 }) {
   const currency = useCurrency();
   const [open, setOpen] = useState(false);
+  const { categories } = useGetCategories();
+  const categoryOf = (draft: Draft) =>
+    categories.find((c) => c.id === draft.category_id);
 
   return (
     <Popover placement="bottom-end" isOpen={open} onOpenChange={setOpen}>
@@ -30,6 +36,7 @@ export default function PendingDrafts({
         content={drafts.length}
         color="primary"
         size="sm"
+        placement="top-left"
         isInvisible={drafts.length === 0}
       >
         <PopoverTrigger>
@@ -65,6 +72,12 @@ export default function PendingDrafts({
                     onPressItem(draft);
                   }}
                 >
+                  <div className="w-8 h-8 shrink-0 rounded-full bg-zinc-800 grid place-items-center">
+                    <Icon
+                      name={CategoryOptions[categoryOf(draft)?.name ?? ""] ?? "receipt"}
+                      size={15}
+                    />
+                  </div>
                   <div className="whitespace-normal min-w-0">
                     <p className="text-zinc-200 text-sm truncate">
                       <LockContent locked={locked} lockedContent="**************">
@@ -76,11 +89,12 @@ export default function PendingDrafts({
                         "DD/MM hh:mm a"
                       )}
                       {draft.bank && ` · ${draft.bank.toUpperCase()}`}
+                      {` · ${categoryOf(draft)?.name ?? "No category"}`}
                     </p>
                   </div>
                   <div className="ml-auto text-sm text-slate-400 whitespace-nowrap">
                     <LockContent locked={locked}>
-                      {currency(draft.amount, draft.currency)}
+                      {currency(Number(draft.amount), draft.currency)}
                     </LockContent>
                   </div>
                 </button>
