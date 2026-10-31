@@ -56,7 +56,7 @@ const extractValues = (value: string) => {
 };
 
 const ai = new GoogleGenerativeAI(Deno.env.get("GOOGLE_API_KEY") ?? "");
-const model = "gemini-2.5-flash-preview-05-20";
+const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.8-flash";
 
 Deno.serve(async (req) => {
   try {
@@ -86,25 +86,30 @@ const handler = async (req: Request) => {
     }));
     connection.release();
     console.log("[read-inbox] categories loaded:", categories.length);
-    const modelResponse = await ai.getGenerativeModel({
-      model,
-    });
-    const result = await modelResponse.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `You are an assistant that classifies a bank transaction into one of the following categories:\n\n${JSON.stringify(
-                categories
-              )}\n\nGiven this transaction message:\n\n"${values}"\n\nReturn a JSON like: { "category_id": number }\n\nOnly pick one category from the list based on the message content.`,
-            },
-          ],
-        },
-      ],
-    });
-    const text = result.response.text();
-    console.log("[read-inbox] model response:", text);
+    let text = "";
+    try {
+      const modelResponse = await ai.getGenerativeModel({
+        model,
+      });
+      const result = await modelResponse.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `You are an assistant that classifies a bank transaction into one of the following categories:\n\n${JSON.stringify(
+                  categories
+                )}\n\nGiven this transaction message:\n\n"${values?.message ?? response.body}"\n\nReturn a JSON like: { "category_id": number }\n\nOnly pick one category from the list based on the message content.`,
+              },
+            ],
+          },
+        ],
+      });
+      text = result.response.text();
+      console.log("[read-inbox] model response:", text);
+    } catch (error) {
+      console.error("[read-inbox] model error:", model, String(error));
+    }
     const category_id = categories.find((c) => text.includes(c.name))?.id ?? null;
     console.log("[read-inbox] category_id:", category_id);
     return Response.json({
