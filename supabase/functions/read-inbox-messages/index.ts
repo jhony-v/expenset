@@ -57,16 +57,20 @@ const extractValues = (body: string) => {
 
 const pickCategory = async (categories: Category[], email: string) => {
   let text = "";
-  try {
-    const result = await ai.getGenerativeModel({ model }).generateContent(
-      `You are an assistant that classifies a bank transaction into one of the following categories. Use each category's description to decide:\n\n${JSON.stringify(
-        categories
-      )}\n\nGiven this transaction message:\n\n"${email}"\n\nReturn a JSON like: { "category_id": number }\n\nOnly pick one category from the list based on the message content.`
-    );
-    text = result.response.text();
-    console.log("[read-inbox] model response:", text);
-  } catch (error) {
-    console.error("[read-inbox] model error:", model, String(error));
+  // Retry once: Gemini sometimes answers 503 under high demand
+  for (let attempt = 1; attempt <= 2 && !text; attempt++) {
+    try {
+      const result = await ai.getGenerativeModel({ model }).generateContent(
+        `You are an assistant that classifies a bank transaction into one of the following categories. Use each category's description to decide:\n\n${JSON.stringify(
+          categories
+        )}\n\nGiven this transaction message:\n\n"${email}"\n\nReturn a JSON like: { "category_id": number }\n\nOnly pick one category from the list based on the message content.`
+      );
+      text = result.response.text();
+      console.log("[read-inbox] model response:", text);
+    } catch (error) {
+      console.error("[read-inbox] model error:", model, `attempt ${attempt}`, String(error));
+      if (attempt === 1) await new Promise((r) => setTimeout(r, 2000));
+    }
   }
   const modelId = Number(text.match(/"category_id"\s*:\s*(\d+)/)?.[1]);
   return categories.find((c) => c.id === modelId)?.id ?? null;
@@ -92,6 +96,7 @@ const handler = async (req: Request) => {
   console.log("[read-inbox] parsed:", JSON.stringify(values));
   if (!values.amount) {
     console.log("[read-inbox] no amount found, skipping:", email.id);
+    console.log("[read-inbox] body:", (email.body ?? "").replace(/\s+/g, " ").slice(0, 600));
     return Response.json({ skipped: true });
   }
 
