@@ -59,6 +59,15 @@ const ai = new GoogleGenerativeAI(Deno.env.get("GOOGLE_API_KEY") ?? "");
 const model = "gemini-2.5-flash-preview-05-20";
 
 Deno.serve(async (req) => {
+  try {
+    return await handler(req);
+  } catch (error) {
+    console.error("[read-inbox] error:", String(error));
+    return Response.json({ error: String(error) }, { status: 500 });
+  }
+});
+
+const handler = async (req: Request) => {
   if (req.method === "POST") {
     const response = await req.json();
     console.log("[read-inbox] received:", response.subject, "| from:", response.from);
@@ -110,4 +119,4 @@ Deno.serve(async (req) => {
       status: 405,
     });
   }
-});
+};
