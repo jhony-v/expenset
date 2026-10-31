@@ -61,7 +61,9 @@ const model = "gemini-2.5-flash-preview-05-20";
 Deno.serve(async (req) => {
   if (req.method === "POST") {
     const response = await req.json();
+    console.log("[read-inbox] received:", response.subject, "| from:", response.from);
     const values = extractValues(response.body);
+    console.log("[read-inbox] parsed:", JSON.stringify({ ...values, message: undefined }));
     const date = response.date;
     const connection = await pool.connect();
     const dbCategories = (
@@ -74,6 +76,7 @@ Deno.serve(async (req) => {
       name,
     }));
     connection.release();
+    console.log("[read-inbox] categories loaded:", categories.length);
     const modelResponse = await ai.getGenerativeModel({
       model,
     });
@@ -92,13 +95,17 @@ Deno.serve(async (req) => {
       ],
     });
     const text = result.response.text();
+    console.log("[read-inbox] model response:", text);
+    const category_id = categories.find((c) => text.includes(c.name))?.id ?? null;
+    console.log("[read-inbox] category_id:", category_id);
     return Response.json({
       date,
       ...values,
-      category_id: categories.find((c) => text.includes(c.name))?.id ?? null,
+      category_id,
       modelResponse: text,
     });
   } else {
+    console.log("[read-inbox] method not allowed:", req.method);
     return new Response("Method not allowed", {
       status: 405,
     });
