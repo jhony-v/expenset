@@ -3,8 +3,10 @@ function checkUnreadEmails() {
   Logger.log("Threads found: " + threads.length);
   const scriptProperties = PropertiesService.getScriptProperties();
   const supabaseUrl = scriptProperties.getProperty("SUPABASE_URL");
-  const supabaseTriggers = scriptProperties.getProperty("SUPABASE_TRIGGERS");
-  Logger.log("Triggers: " + supabaseTriggers);
+  const supabaseTriggers = scriptProperties.getProperty("SUPABASE_TRIGGERS") || "";
+  // Empty SUPABASE_TRIGGERS = send every unread email (useful for testing)
+  const conditions = supabaseTriggers.split(",").map((c) => c.trim()).filter(Boolean);
+  Logger.log("Triggers: " + (conditions.length ? conditions.join(", ") : "(none, sending all)"));
 
   for (const thread of threads) {
     const messages = thread.getMessages();
@@ -16,11 +18,8 @@ function checkUnreadEmails() {
         body: msg.getPlainBody().slice(0, 1005),
       };
       const subject = payload.subject.toLowerCase();
-      const conditions = supabaseTriggers.split(",");
       const canRun =
-        subject.includes(conditions[0]) ||
-        subject.includes(conditions[1]) ||
-        subject.includes(conditions[2]);
+        conditions.length === 0 || conditions.some((c) => subject.includes(c));
       if (canRun) {
         Logger.log("Sending: " + payload.subject + " | from: " + payload.from);
         const response = UrlFetchApp.fetch(supabaseUrl, {
@@ -48,13 +47,14 @@ function previewInbox() {
   const supabaseTriggers =
     PropertiesService.getScriptProperties().getProperty("SUPABASE_TRIGGERS") ||
     "";
-  const conditions = supabaseTriggers.split(",").filter(Boolean);
-  Logger.log("Triggers: " + conditions.join(", "));
+  const conditions = supabaseTriggers.split(",").map((c) => c.trim()).filter(Boolean);
+  Logger.log("Triggers: " + (conditions.length ? conditions.join(", ") : "(none, all match)"));
 
   for (const thread of threads) {
     for (const msg of thread.getMessages()) {
       const subject = msg.getSubject();
-      const match = conditions.some((c) => subject.toLowerCase().includes(c));
+      const match =
+        conditions.length === 0 || conditions.some((c) => subject.toLowerCase().includes(c));
       Logger.log((match ? "MATCH " : "skip  ") + subject + " | " + msg.getFrom());
       if (match) {
         Logger.log(msg.getPlainBody().slice(0, 500));
