@@ -65,6 +65,8 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     queryKey: ["movement_draft"],
     queryFn: () => serverOwnDrafts(supabase, session),
     initialData: [],
+    // New bank emails arrive in the background
+    refetchInterval: 60_000,
   });
 
   const [showForm, setShowForm] = useState(false);
@@ -157,14 +159,16 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
           />
         </div>
         <div className="lg:w-[42rem] space-y-6 mb-10 overflow-y-auto">
-          <OverviewBudget budget={budget} locked={locked} />
-          {drafts.length > 0 && (
+          <div className="flex gap-2 md:gap-6 items-center">
+            <div className="flex-1">
+              <OverviewBudget budget={budget} locked={locked} />
+            </div>
             <PendingDrafts
               drafts={drafts}
               locked={locked}
               onPressItem={setCurrentDraft}
             />
-          )}
+          </div>
           <History
             loading={loadingMovements}
             locked={locked}
