@@ -25,4 +25,18 @@ export interface Movement {
 export interface Category {
   id: number;
   name: string;
+  description?: string;
+}
+
+export interface Draft {
+  id: number;
+  amount: number;
+  currency: CurrencyCode;
+  type: MovementType;
+  description: string | null;
+  category_id: number | null;
+  bank: string | null;
+  date: string | null;
+  subject: string | null;
+  created_at: string;
 }

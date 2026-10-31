@@ -13,7 +13,7 @@ import {
 } from "@supabase/auth-helpers-nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-import { Movement } from "@/app/shared/types";
+import { Draft, Movement } from "@/app/shared/types";
 import Chart from "../components/Chart";
 import History from "../components/History";
 import OverviewBudget from "../components/OverviewBudget";
@@ -21,10 +21,13 @@ import ExpenseManegementForm, {
   Payload,
 } from "../components/ExpenseManegementForm";
 import EditMovement from "../components/EditMovement";
+import PendingDrafts from "../components/PendingDrafts";
+import ReviewDraft from "../components/ReviewDraft";
 import { LucidePlus } from "lucide-react";
 import { MovementType } from "@/app/constants";
 import serverOwnBudget from "@/app/shared/actions/serverOwnBudget";
 import serverOwnMovements from "@/app/shared/actions/serverOwnMovements";
+import serverOwnDrafts from "@/app/shared/actions/serverOwnDrafts";
 
 export default function BoardExpenseTracker({ session }: { session: Session }) {
   const supabase = createClientComponentClient();
@@ -58,7 +61,14 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
     initialData: [],
   });
 
+  const { data: drafts, refetch: refetchDrafts } = useQuery({
+    queryKey: ["movement_draft"],
+    queryFn: () => serverOwnDrafts(supabase, session),
+    initialData: [],
+  });
+
   const [showForm, setShowForm] = useState(false);
+  const [currentDraft, setCurrentDraft] = useState<Draft | null>(null);
   const [locked, setLocked] = useState(true);
   const [currentMovement, setCurrentMovement] = useState<Movement | null>(null);
   const [crosshairMovements, setCrosshairMovements] = useState<{
@@ -73,7 +83,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   }, []);
 
   const handleSpend = useCallback(
-    async ({ amount, description, currency, category }: Payload) => {
+    async ({ amount, description, currency, category, created_at }: Payload) => {
       const exchanges = await fetchExchangeRate();
       const finalAmount = amount * (exchanges[currency] ?? 1);
       const body = {
@@ -90,6 +100,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         category_id: category,
         currency,
         rate: exchanges.USD,
+        created_at,
       });
       refetchMovement();
     },
@@ -97,7 +108,7 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
   );
 
   const handleIncome = useCallback(
-    async ({ amount, description, currency, category }: Payload) => {
+    async ({ amount, description, currency, category, created_at }: Payload) => {
       const exchanges = await fetchExchangeRate();
       const finalAmount = amount * (exchanges[currency] ?? 1);
       const body = {
@@ -113,10 +124,20 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         category_id: category,
         currency,
         rate: exchanges.USD,
+        created_at,
       });
       refetchMovement();
     },
     [budget, supabase, refetchBudget, refetchMovement, fetchExchangeRate]
+  );
+
+  const removeDraft = useCallback(
+    async (draft: Draft) => {
+      await supabase.from("movement_draft").delete().eq("id", draft.id);
+      await refetchDrafts();
+      setCurrentDraft(null);
+    },
+    [supabase, refetchDrafts]
   );
 
   useEffect(() => {
@@ -137,6 +158,13 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
         </div>
         <div className="lg:w-[42rem] space-y-6 mb-10 overflow-y-auto">
           <OverviewBudget budget={budget} locked={locked} />
+          {drafts.length > 0 && (
+            <PendingDrafts
+              drafts={drafts}
+              locked={locked}
+              onPressItem={setCurrentDraft}
+            />
+          )}
           <History
             loading={loadingMovements}
             locked={locked}
@@ -187,6 +215,20 @@ export default function BoardExpenseTracker({ session }: { session: Session }) {
             setCurrentMovement(null);
           }}
           onCancel={() => setCurrentMovement(null)}
+        />
+      )}
+      {currentDraft && (
+        <ReviewDraft
+          key={currentDraft.id}
+          draft={currentDraft}
+          locked={locked}
+          onSave={async (type, payload) => {
+            if (type === MovementType.INCOME) await handleIncome(payload);
+            else await handleSpend(payload);
+            await removeDraft(currentDraft);
+          }}
+          onDiscard={() => removeDraft(currentDraft)}
+          onCancel={() => setCurrentDraft(null)}
         />
       )}
     </div>

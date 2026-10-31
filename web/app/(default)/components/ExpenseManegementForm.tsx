@@ -16,8 +16,9 @@ import { memo, useState } from "react";
 export type Payload = {
   amount: number;
   description: string;
-  currency: number;
+  currency: CurrencyCode;
   category: number;
+  created_at?: string;
 };
 
 export default memo(function ExpenseManegementForm({

@@ -1,68 +1,36 @@
+// Runs on a time trigger. Sends matching unread emails to Supabase.
+// Script properties: SUPABASE_URL, SUPABASE_TRIGGERS (comma separated, empty = all)
 function checkUnreadEmails() {
-  const threads = GmailApp.search("is:unread newer_than:1d");
-  Logger.log("Threads found: " + threads.length);
-  const scriptProperties = PropertiesService.getScriptProperties();
-  const supabaseUrl = scriptProperties.getProperty("SUPABASE_URL");
-  if (!supabaseUrl) {
-    Logger.log("Missing SUPABASE_URL in Project Settings > Script Properties");
-    return;
-  }
-  const supabaseTriggers = scriptProperties.getProperty("SUPABASE_TRIGGERS") || "";
-  // Empty SUPABASE_TRIGGERS = send every unread email (useful for testing)
-  const conditions = supabaseTriggers.split(",").map((c) => c.trim()).filter(Boolean);
-  Logger.log("Triggers: " + (conditions.length ? conditions.join(", ") : "(none, sending all)"));
+  const props = PropertiesService.getScriptProperties();
+  const url = props.getProperty("SUPABASE_URL");
+  if (!url) return Logger.log("Missing SUPABASE_URL");
+  const triggers = (props.getProperty("SUPABASE_TRIGGERS") || "")
+    .split(",")
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
+  const owner = Session.getEffectiveUser().getEmail();
 
-  for (const thread of threads) {
-    const messages = thread.getMessages();
-    for (const msg of messages) {
-      const payload = {
-        subject: msg.getSubject(),
-        from: msg.getFrom(),
-        date: msg.getDate(),
-        body: msg.getPlainBody().slice(0, 1005),
-      };
-      const subject = payload.subject.toLowerCase();
-      const canRun =
-        conditions.length === 0 || conditions.some((c) => subject.includes(c));
-      if (canRun) {
-        Logger.log("Sending: " + payload.subject + " | from: " + payload.from);
-        const response = UrlFetchApp.fetch(supabaseUrl, {
-          method: "post",
-          contentType: "application/json",
-          payload: JSON.stringify(payload),
-          muteHttpExceptions: true,
-        });
-        Logger.log("Status: " + response.getResponseCode());
-        Logger.log("Response: " + response.getContentText());
-      } else {
-        Logger.log("Skipped: " + payload.subject);
-      }
-    }
-    thread.markRead();
-  }
-  Logger.log("Done");
-}
-
-// Read-only: logs unread emails that match the triggers.
-// Does not call Supabase and does not mark anything as read.
-function previewInbox() {
-  const threads = GmailApp.search("is:unread newer_than:1d");
-  Logger.log("Threads found: " + threads.length);
-  const supabaseTriggers =
-    PropertiesService.getScriptProperties().getProperty("SUPABASE_TRIGGERS") ||
-    "";
-  const conditions = supabaseTriggers.split(",").map((c) => c.trim()).filter(Boolean);
-  Logger.log("Triggers: " + (conditions.length ? conditions.join(", ") : "(none, all match)"));
-
-  for (const thread of threads) {
+  for (const thread of GmailApp.search("is:unread newer_than:1d")) {
     for (const msg of thread.getMessages()) {
       const subject = msg.getSubject();
-      const match =
-        conditions.length === 0 || conditions.some((c) => subject.toLowerCase().includes(c));
-      Logger.log((match ? "MATCH " : "skip  ") + subject + " | " + msg.getFrom());
-      if (match) {
-        Logger.log(msg.getPlainBody().slice(0, 500));
-      }
+      const lower = subject.toLowerCase();
+      if (triggers.length && !triggers.some((t) => lower.includes(t))) continue;
+
+      const response = UrlFetchApp.fetch(url, {
+        method: "post",
+        contentType: "application/json",
+        muteHttpExceptions: true,
+        payload: JSON.stringify({
+          id: msg.getId(),
+          owner,
+          subject,
+          from: msg.getFrom(),
+          date: msg.getDate(),
+          body: msg.getPlainBody().slice(0, 1500),
+        }),
+      });
+      Logger.log(response.getResponseCode() + " " + subject);
+      if (response.getResponseCode() === 200) msg.markRead();
     }
   }
 }
