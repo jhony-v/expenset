@@ -111,10 +111,14 @@ const handler = async (req: Request) => {
   const connection = await pool.connect();
   try {
     const ownerEmail = Deno.env.get("DRAFT_USER_EMAIL") || email.owner || "";
-    const user = (
-      await connection.queryObject<{ id: string }>`
-        SELECT id FROM auth.users WHERE lower(email) = lower(${ownerEmail})`
-    ).rows[0];
+    // Gmail and app login can differ: fall back to the only app user
+    const users = (
+      await connection.queryObject<{ id: string; email: string }>`
+        SELECT id, email FROM auth.users`
+    ).rows;
+    const user =
+      users.find((u) => u.email?.toLowerCase() === ownerEmail.toLowerCase()) ??
+      (users.length === 1 ? users[0] : undefined);
     if (!user) {
       const reason = `no user found for ${ownerEmail}`;
       console.log("[read-inbox] skipped:", reason);
