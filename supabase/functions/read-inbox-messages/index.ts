@@ -110,7 +110,11 @@ const handler = async (req: Request) => {
     } catch (error) {
       console.error("[read-inbox] model error:", model, String(error));
     }
-    const category_id = categories.find((c) => text.includes(c.name))?.id ?? null;
+    const modelId = Number(text.match(/"category_id"\s*:\s*(\d+)/)?.[1]);
+    const category_id =
+      categories.find((c) => c.id === modelId)?.id ??
+      categories.find((c) => text.includes(c.name))?.id ??
+      null;
     console.log("[read-inbox] category_id:", category_id);
     return Response.json({
       date,
